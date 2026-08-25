@@ -19,6 +19,9 @@ export {
 } from './options';
 export type { OptionMeta } from './options';
 
+export { logo, mascot } from './assets';
+export type { MascotKey } from './assets';
+
 export {
   AVAILABLE_CURRENCIES,
   DEFAULT_CURRENCY,

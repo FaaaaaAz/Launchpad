@@ -45,6 +45,7 @@ Otros comandos:
 | Notificaciones | `expo-notifications` (solo locales) |
 | Imágenes | `expo-image-picker` + `expo-file-system` |
 | Estado | React Context + hooks (sin librería externa) |
+| Degradados | `expo-linear-gradient` |
 
 ### Por qué SDK 54 y no el último
 
@@ -91,12 +92,14 @@ src/
 │
 ├── components/          Componentes sin lógica de negocio
 │   ├── ui/              Card, Button, Badge, Text, ListRow, estados…
-│   └── form/            Campos de formulario
+│   ├── form/            Campos de formulario
+│   └── navigation/      BubbleTabBar (barra flotante con burbuja)
 │
 ├── features/            Un módulo por dominio funcional
 │   ├── activities/      Ejercicio + Académico + Hobbies (misma entidad)
 │   ├── tasks/
 │   ├── dashboard/
+│   ├── welcome/         Bienvenida con la mascota
 │   └── notifications/
 │
 ├── database/            Persistencia
@@ -159,6 +162,18 @@ actualizarla. Se guarda `activity-images/<id>.jpg` y se resuelve al mostrar con
 `imageStorage.resolve()`. Esa misma clave servirá como ruta de bucket en Firebase
 Storage.
 
+**Negro y amarillo, con los colores del propio logo.**
+`#FDC305` y `#FD731D` no se eligieron a ojo: se extrajeron de los píxeles de
+`assets/images/logo.png` y de la mascota. Los colores *funcionales* (prioridad,
+estado de pago, éxito/error) se conservan tal cual: comunican significado, y
+teñirlos de amarillo por coherencia visual haría la información más difícil de
+leer. Ver `src/theme/colors.ts`.
+
+**Las imágenes se registran en un solo archivo.**
+Metro exige que `require()` reciba una cadena literal, así que las rutas no se
+pueden construir dinámicamente. Todas viven en `src/constants/assets.ts`, y las
+pantallas usan `logo` o `mascot.<clave>`.
+
 **Configuración no es una pestaña.**
 Seis pestañas aprietan demasiado las etiquetas en un iPhone. Vive en `/settings`,
 detrás del engranaje del dashboard, que es la sección que menos se abre.
@@ -219,6 +234,9 @@ ocurra, Expo Go es suficiente.
 - [x] Recordatorios locales para tareas y vencimientos de pago
 - [x] Configuración: nombre, moneda, notificaciones, borrado de datos
 - [x] Persistencia en SQLite con migraciones
+- [x] Identidad visual negro/amarillo con degradados de marca
+- [x] Barra de pestañas flotante con burbuja deslizante
+- [x] Bienvenida animada con la mascota
 
 ## Qué sigue
 

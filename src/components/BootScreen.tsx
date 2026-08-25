@@ -1,6 +1,7 @@
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Image, StyleSheet, View } from 'react-native';
 
-import { colors, spacing } from '@/theme';
+import { logo } from '@/constants';
+import { colors, radius, spacing } from '@/theme';
 
 import { Button } from './ui/Button';
 import { Text } from './ui/Text';
@@ -21,6 +22,8 @@ export function BootScreen({ error, onRetry }: BootScreenProps) {
   return (
     <View style={styles.container}>
       <View style={styles.brand}>
+        <Image source={logo} style={styles.logo} resizeMode="contain" />
+
         <Text variant="display" style={styles.wordmark}>
           LAUNCHPAD
         </Text>
@@ -57,6 +60,12 @@ const styles = StyleSheet.create({
   brand: {
     alignItems: 'center',
     gap: spacing.sm,
+  },
+  logo: {
+    width: 96,
+    height: 96,
+    borderRadius: radius.xl,
+    marginBottom: spacing.md,
   },
   wordmark: {
     letterSpacing: 4,

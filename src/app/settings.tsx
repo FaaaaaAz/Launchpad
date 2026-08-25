@@ -36,7 +36,8 @@ const PERMISSION_LABELS: Record<PermissionState, { label: string; color: string 
 };
 
 export default function SettingsScreen() {
-  const { userName, setUserName, currency, setCurrency, resetOnboarding } = useSettings();
+  const { userName, setUserName, currency, setCurrency, resetOnboarding, replayWelcome } =
+    useSettings();
   const { tasks, refresh: refreshTasks } = useTasks();
   const { activities, refresh: refreshActivities } = useActivities();
 
@@ -233,7 +234,22 @@ export default function SettingsScreen() {
           <ListRow title="Launchpad" subtitle="Versión 1.0.0" icon="rocket-outline" />
           <View style={styles.divider} />
           <ListRow
+            title="Saludo del zorro"
+            subtitle="Repite la animación de bienvenida"
+            icon="paw-outline"
+            iconColor={colors.accent}
+            onPress={() => {
+              void replayWelcome();
+              router.back();
+            }}
+            showChevron
+          />
+
+          <View style={styles.divider} />
+
+          <ListRow
             title="Ver la bienvenida otra vez"
+            subtitle="Vuelve a la pantalla inicial de la app"
             icon="refresh-outline"
             onPress={confirmResetOnboarding}
             showChevron

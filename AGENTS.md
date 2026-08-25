@@ -10,6 +10,10 @@ Aplicación personal local (sin backend). Ver `README.md` para la arquitectura c
 
 - **Nunca SQL en una pantalla.** El flujo es `Pantalla → Provider → Service → Repository → SQLite`.
 - **Nunca un color, tamaño de fuente o espaciado literal.** Todo sale de `src/theme`.
+- **La app es negra y amarilla.** El amarillo `#FDC305` está tomado del logo. Los colores
+  funcionales (prioridad, pago, estado) NO se tocan: comunican significado, no identidad.
+- **Nunca escribas la ruta de una imagen en una pantalla.** Regístrala en
+  `src/constants/assets.ts` y úsala desde ahí.
 - **Nunca editar una migración ya aplicada.** Se agrega la siguiente en `src/database/migrations/`.
 - **Nunca guardar un valor derivable.** El estado de pago se calcula con `getPaymentStatus()`.
 - **Ejercicio, Académico y Hobbies son la misma entidad** (`Activity` + `domain`). No dupliques

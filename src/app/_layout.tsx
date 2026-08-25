@@ -1,11 +1,13 @@
 import type { ReactNode } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { BootScreen } from '@/components/BootScreen';
 import { ActivitiesProvider } from '@/features/activities/ActivitiesProvider';
 import { TasksProvider } from '@/features/tasks/TasksProvider';
+import { MascotWelcome } from '@/features/welcome/MascotWelcome';
 import { DatabaseProvider, useDatabaseStatus } from '@/providers/DatabaseProvider';
 import { SettingsProvider, useSettings } from '@/providers/SettingsProvider';
 import { colors } from '@/theme';
@@ -47,9 +49,29 @@ function DatabaseGate({ children }: { children: ReactNode }) {
 }
 
 function RootNavigator() {
-  const { isLoading, onboardingCompleted } = useSettings();
+  const { isLoading, onboardingCompleted, welcomePending, userName, dismissWelcome } =
+    useSettings();
 
   if (isLoading) return <BootScreen />;
+
+  return (
+    <View style={styles.root}>
+      <AppStack />
+
+      {/*
+        La bienvenida se monta por encima de TODA la navegación, no dentro del
+        Home: así el velo también atenúa la barra de pestañas, que si no
+        quedaría iluminada sobre un fondo oscurecido.
+      */}
+      {onboardingCompleted && welcomePending ? (
+        <MascotWelcome userName={userName} onDismiss={() => void dismissWelcome()} />
+      ) : null}
+    </View>
+  );
+}
+
+function AppStack() {
+  const { onboardingCompleted } = useSettings();
 
   return (
     <Stack
@@ -79,3 +101,10 @@ function RootNavigator() {
     </Stack>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+});

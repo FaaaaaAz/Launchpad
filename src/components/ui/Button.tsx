@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 
 import type { IconName } from '@/constants';
-import { colors, radius, spacing, MIN_TOUCH_SIZE } from '@/theme';
+import { colors, gradients, radius, spacing, MIN_TOUCH_SIZE } from '@/theme';
 
 import { PressableScale } from './PressableScale';
 import { Text } from './Text';
@@ -25,7 +26,8 @@ export interface ButtonProps {
 }
 
 const VARIANT_STYLES: Record<Variant, { background: string; border: string; text: string }> = {
-  primary: { background: colors.accent, border: colors.accent, text: colors.textOnAccent },
+  // El primario pinta su fondo con un degradado, por eso va transparente.
+  primary: { background: 'transparent', border: 'transparent', text: colors.textOnAccent },
   secondary: {
     background: colors.surfaceElevated,
     border: colors.border,
@@ -77,6 +79,15 @@ export function Button({
         style,
       ]}
     >
+      {variant === 'primary' ? (
+        <LinearGradient
+          colors={gradients.brand}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+      ) : null}
+
       <View style={styles.content}>
         {loading ? (
           <ActivityIndicator size="small" color={palette.text} />
@@ -96,6 +107,8 @@ export function Button({
 const styles = StyleSheet.create({
   base: {
     borderRadius: radius.md,
+    // Recorta el degradado del primario a las esquinas redondeadas.
+    overflow: 'hidden',
     borderWidth: StyleSheet.hairlineWidth,
     minHeight: MIN_TOUCH_SIZE,
     justifyContent: 'center',

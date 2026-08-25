@@ -6,6 +6,8 @@
  */
 export const SETTING_KEYS = {
   onboardingCompleted: 'onboarding.completed',
+  /** Queda pendiente la bienvenida de la mascota tras el onboarding. */
+  welcomePending: 'welcome.pending',
   userName: 'user.name',
   currency: 'app.currency',
 } as const;

@@ -11,6 +11,7 @@ import {
   ScreenHeader,
   Text,
 } from '@/components/ui';
+import { TAB_BAR_CLEARANCE } from '@/components/navigation/BubbleTabBar';
 import { getDomainConfig } from '@/constants';
 import { useCategories } from '@/hooks/useCategories';
 import { colors, spacing } from '@/theme';
@@ -75,14 +76,16 @@ export function ActivityDomainScreen({ domain }: { domain: ActivityDomain }) {
       ) : error ? (
         <ErrorState message={error} onRetry={() => void refresh()} />
       ) : items.length === 0 ? (
-        <EmptyState
-          icon={config.icon}
-          title={config.emptyTitle}
-          description={config.emptyDescription}
-          actionLabel={config.createLabel}
-          onActionPress={openNew}
-          accentColor={config.color}
-        />
+        <View style={styles.emptyArea}>
+          <EmptyState
+            icon={config.icon}
+            title={config.emptyTitle}
+            description={config.emptyDescription}
+            actionLabel={config.createLabel}
+            onActionPress={openNew}
+            accentColor={config.color}
+          />
+        </View>
       ) : (
         <FlatList
           data={items}
@@ -122,10 +125,15 @@ export function ActivityDomainScreen({ domain }: { domain: ActivityDomain }) {
 const styles = StyleSheet.create({
   list: {
     paddingHorizontal: spacing.xl,
-    paddingBottom: spacing.huge,
+    paddingBottom: TAB_BAR_CLEARANCE,
   },
   separator: {
     height: spacing.lg,
+  },
+  emptyArea: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingBottom: TAB_BAR_CLEARANCE,
   },
   count: {
     marginBottom: spacing.md,

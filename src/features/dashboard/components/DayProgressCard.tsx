@@ -51,7 +51,8 @@ export function DayProgressCard({ completed, total, overdue }: DayProgressCardPr
 
       <ProgressIndicator
         value={progress}
-        color={remaining === 0 && total > 0 ? colors.success : colors.accent}
+        color={colors.success}
+        gradient={!(remaining === 0 && total > 0)}
         label="Progreso del día"
       />
 

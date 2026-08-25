@@ -1,7 +1,8 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 
-import { colors, motion, radius } from '@/theme';
+import { colors, gradients, motion, radius } from '@/theme';
 
 export interface ProgressIndicatorProps {
   /** Valor entre 0 y 1. Se recorta si llega fuera de rango. */
@@ -9,6 +10,8 @@ export interface ProgressIndicatorProps {
   color?: string;
   height?: number;
   label?: string;
+  /** Rellena con el degradado de marca en lugar de un color plano. */
+  gradient?: boolean;
 }
 
 /** Barra de progreso con transición suave al cambiar el valor. */
@@ -17,6 +20,7 @@ export function ProgressIndicator({
   color = colors.accent,
   height = 6,
   label,
+  gradient = false,
 }: ProgressIndicatorProps) {
   const safeValue = Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 0;
   const animated = useRef(new Animated.Value(safeValue)).current;
@@ -42,9 +46,18 @@ export function ProgressIndicator({
       accessibilityValue={{ min: 0, max: 100, now: Math.round(safeValue * 100) }}
       style={[styles.track, { height, borderRadius: height / 2 }]}
     >
-      <Animated.View
-        style={[styles.fill, { width, backgroundColor: color, borderRadius: height / 2 }]}
-      />
+      <Animated.View style={[styles.fill, { width, borderRadius: height / 2 }]}>
+        {gradient ? (
+          <LinearGradient
+            colors={gradients.brand}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.gradientFill}
+          />
+        ) : (
+          <View style={[styles.gradientFill, { backgroundColor: color }]} />
+        )}
+      </Animated.View>
     </View>
   );
 }
@@ -57,5 +70,9 @@ const styles = StyleSheet.create({
   },
   fill: {
     height: '100%',
+    overflow: 'hidden',
+  },
+  gradientFill: {
+    flex: 1,
   },
 });

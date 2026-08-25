@@ -11,6 +11,7 @@ import {
   SectionHeader,
   Text,
 } from '@/components/ui';
+import { TAB_BAR_CLEARANCE } from '@/components/navigation/BubbleTabBar';
 import { PAYMENT_STATUS_META, getDomainConfig } from '@/constants';
 import { useActivities } from '@/features/activities/ActivitiesProvider';
 import {
@@ -229,7 +230,7 @@ export default function DashboardScreen() {
 
 const styles = StyleSheet.create({
   content: {
-    paddingBottom: spacing.huge,
+    paddingBottom: TAB_BAR_CLEARANCE,
   },
   sections: {
     paddingHorizontal: spacing.xl,

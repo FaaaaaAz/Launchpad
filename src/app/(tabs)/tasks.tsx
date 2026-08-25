@@ -13,6 +13,7 @@ import {
   ScreenHeader,
   Text,
 } from '@/components/ui';
+import { TAB_BAR_CLEARANCE } from '@/components/navigation/BubbleTabBar';
 import { TaskCard } from '@/features/tasks/components/TaskCard';
 import { useTasks } from '@/features/tasks/TasksProvider';
 import {
@@ -110,13 +111,15 @@ export default function TasksScreen() {
       ) : error ? (
         <ErrorState message={error} onRetry={() => void refresh()} />
       ) : visibleTasks.length === 0 ? (
-        <EmptyState
-          icon="checkbox-outline"
-          title={EMPTY_COPY[filter].title}
-          description={EMPTY_COPY[filter].description}
-          actionLabel="Nueva tarea"
-          onActionPress={() => router.push('/task/new')}
-        />
+        <View style={styles.emptyArea}>
+          <EmptyState
+            icon="checkbox-outline"
+            title={EMPTY_COPY[filter].title}
+            description={EMPTY_COPY[filter].description}
+            actionLabel="Nueva tarea"
+            onActionPress={() => router.push('/task/new')}
+          />
+        </View>
       ) : (
         <FlatList
           data={visibleTasks}
@@ -159,9 +162,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingBottom: spacing.lg,
   },
+  emptyArea: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingBottom: TAB_BAR_CLEARANCE,
+  },
   list: {
     paddingHorizontal: spacing.xl,
-    paddingBottom: spacing.huge,
+    paddingBottom: TAB_BAR_CLEARANCE,
   },
   separator: {
     height: spacing.md,

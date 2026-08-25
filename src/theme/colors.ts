@@ -1,62 +1,77 @@
 /**
- * Paleta base de Launchpad.
+ * Paleta de Launchpad: negro y amarillo.
  *
- * Todos los colores de la app salen de aquí. Ninguna pantalla debe declarar
- * un color literal: si hace falta un tono nuevo, se agrega a esta paleta.
+ * Los dos colores de marca están tomados píxel a píxel de los assets, no
+ * elegidos a ojo:
+ * - `#FDC305` es el amarillo del zorro en `assets/images/logo.png`.
+ * - `#FD731D` es el naranja del pelaje de la mascota, y sirve de cierre
+ *   natural para los degradados.
  *
- * La v1 es dark-only por decisión de producto (un centro de control personal
- * se lee mejor en oscuro). La estructura ya está preparada para agregar un
- * tema claro más adelante: bastaría con exportar otro objeto `colors` y
- * seleccionarlo desde un ThemeProvider.
+ * Todos los colores de la app salen de aquí. Ninguna pantalla debe declarar un
+ * color literal: si hace falta un tono nuevo, se agrega a esta paleta.
  */
 
 const palette = {
-  night900: '#0B0E14',
-  night800: '#111621',
-  night700: '#161D2A',
-  night600: '#1D2634',
-  night500: '#26303F',
+  // Negros. `black950` es prácticamente el fondo del logo (#030303).
+  black950: '#050506',
+  black900: '#0B0B0D',
+  black800: '#131316',
+  black700: '#1B1B1F',
+  black600: '#26262C',
+  black500: '#34343C',
+
+  // Amarillo de marca y su rango.
+  yellow300: '#FFE18A',
+  yellow400: '#FFD344',
+  yellow500: '#FDC305',
+  yellow600: '#D9A404',
+
+  // Naranja de la mascota. Solo para degradados y acentos cálidos.
+  orange500: '#FD731D',
 
   white: '#FFFFFF',
-  cloud100: '#F2F5FA',
-  slate300: '#9AA6BC',
-  slate400: '#6E7C94',
-  slate500: '#4E5B70',
+  gray100: '#F4F4F6',
+  gray300: '#B4B4BE',
+  gray400: '#8A8A95',
+  gray500: '#61616B',
 
-  violet500: '#6E56F8',
-  violet400: '#8B78FF',
-
+  // Colores funcionales. Se conservan tal cual: comunican significado
+  // (urgencia, dinero, estado) y cambiarlos por identidad visual haría la
+  // información más difícil de leer, que es justo lo contrario de lo que
+  // buscamos.
   green500: '#34D399',
   amber500: '#FBBF24',
   red500: '#F87171',
   blue500: '#60A5FA',
-  orange500: '#FB7A45',
-  purple500: '#C084FC',
 } as const;
 
 export const colors = {
   /** Fondo general de la aplicación. */
-  background: palette.night900,
+  background: palette.black950,
   /** Superficie de cards y contenedores. */
-  surface: palette.night800,
+  surface: palette.black800,
   /** Superficie destacada (card sobre card, inputs). */
-  surfaceElevated: palette.night700,
+  surfaceElevated: palette.black700,
   /** Estado presionado / seleccionado. */
-  surfacePressed: palette.night600,
+  surfacePressed: palette.black600,
 
-  border: palette.night600,
-  borderStrong: palette.night500,
+  border: palette.black600,
+  borderStrong: palette.black500,
 
-  textPrimary: palette.cloud100,
-  textSecondary: palette.slate300,
-  textMuted: palette.slate400,
-  textDisabled: palette.slate500,
-  textOnAccent: palette.white,
+  textPrimary: palette.gray100,
+  textSecondary: palette.gray300,
+  textMuted: palette.gray400,
+  textDisabled: palette.gray500,
+  /** Texto sobre amarillo: negro, nunca blanco. */
+  textOnAccent: palette.black950,
 
-  accent: palette.violet500,
-  accentSoft: 'rgba(110, 86, 248, 0.16)',
-  accentBorder: 'rgba(110, 86, 248, 0.42)',
-  accentPressed: palette.violet400,
+  accent: palette.yellow500,
+  accentLight: palette.yellow400,
+  accentDeep: palette.yellow600,
+  accentWarm: palette.orange500,
+  accentSoft: 'rgba(253, 195, 5, 0.16)',
+  accentBorder: 'rgba(253, 195, 5, 0.45)',
+  accentPressed: palette.yellow400,
 
   success: palette.green500,
   successSoft: 'rgba(52, 211, 153, 0.14)',
@@ -67,21 +82,42 @@ export const colors = {
   info: palette.blue500,
   infoSoft: 'rgba(96, 165, 250, 0.14)',
 
-  neutralSoft: 'rgba(154, 166, 188, 0.12)',
+  neutralSoft: 'rgba(180, 180, 190, 0.12)',
 
-  overlay: 'rgba(5, 7, 11, 0.72)',
-  skeleton: palette.night700,
+  overlay: 'rgba(5, 5, 6, 0.72)',
+  /** Velo de la bienvenida: más denso, para apagar el dashboard detrás. */
+  overlayDeep: 'rgba(5, 5, 6, 0.88)',
+  skeleton: palette.black700,
 } as const;
 
 /**
- * Color identitario de cada dominio de actividad.
- * Se usa en tabs, headers y acentos de card para que cada módulo
- * se reconozca de un vistazo.
+ * Degradados de marca.
+ *
+ * Se declaran como tuplas de color listas para `expo-linear-gradient`, de modo
+ * que ninguna pantalla invente su propia combinación.
+ */
+export const gradients = {
+  /** Amarillo → naranja. El degradado principal de la marca. */
+  brand: [palette.yellow400, palette.yellow500, palette.orange500],
+  /** Amarillo suave, para superficies grandes que no deben gritar. */
+  accent: [palette.yellow400, palette.yellow600],
+  /** Negro translúcido → opaco. Para difuminar bordes de imágenes. */
+  fadeToBackground: ['rgba(5, 5, 6, 0)', 'rgba(5, 5, 6, 0.85)', palette.black950],
+  /** Realce sutil sobre superficies oscuras. */
+  surface: [palette.black700, palette.black800],
+} as const;
+
+/**
+ * Color identitario de cada módulo.
+ *
+ * Se mantienen dentro del rango amarillo-naranja para no romper la identidad
+ * de la app: los módulos se distinguen sobre todo por su ícono, y el color
+ * solo acompaña.
  */
 export const domainColors = {
   exercise: palette.orange500,
-  academic: palette.blue500,
-  hobby: palette.purple500,
+  academic: palette.yellow500,
+  hobby: palette.yellow300,
 } as const;
 
 export type AppColor = keyof typeof colors;

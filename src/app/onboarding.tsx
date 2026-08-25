@@ -1,11 +1,19 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 
 import { TextField } from '@/components/form';
 import { Button, Screen, Text } from '@/components/ui';
+import { logo } from '@/constants';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { useSettings } from '@/providers/SettingsProvider';
-import { colors, spacing } from '@/theme';
+import { colors, radius, spacing } from '@/theme';
 
 /**
  * Bienvenida.
@@ -34,6 +42,8 @@ export default function OnboardingScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.hero}>
+            <Image source={logo} style={styles.logo} resizeMode="contain" />
+
             <Text variant="display" style={styles.wordmark}>
               LAUNCHPAD
             </Text>
@@ -95,6 +105,12 @@ const styles = StyleSheet.create({
   },
   hero: {
     gap: spacing.md,
+  },
+  logo: {
+    width: 88,
+    height: 88,
+    borderRadius: radius.xl,
+    marginBottom: spacing.lg,
   },
   wordmark: {
     letterSpacing: 4,

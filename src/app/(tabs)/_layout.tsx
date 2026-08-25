@@ -1,9 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
-import { Platform, StyleSheet } from 'react-native';
 
+import { BubbleTabBar } from '@/components/navigation/BubbleTabBar';
 import { DOMAIN_CONFIG } from '@/constants';
-import { colors, spacing, typography } from '@/theme';
+import { colors } from '@/theme';
 
 /**
  * Barra de pestañas.
@@ -11,17 +11,16 @@ import { colors, spacing, typography } from '@/theme';
  * Cinco destinos: el máximo que se lee cómodamente en un iPhone sin que las
  * etiquetas se corten. Configuración vive fuera, en el engranaje del
  * dashboard, porque es la sección que menos se abre.
+ *
+ * El aspecto y la animación los define `BubbleTabBar`; aquí solo se declaran
+ * las rutas y sus íconos.
  */
 export default function TabsLayout() {
   return (
     <Tabs
+      tabBar={(props) => <BubbleTabBar {...props} />}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.accent,
-        tabBarInactiveTintColor: colors.textMuted,
-        tabBarStyle: styles.tabBar,
-        tabBarLabelStyle: styles.label,
-        tabBarItemStyle: styles.item,
         sceneStyle: { backgroundColor: colors.background },
       }}
     >
@@ -75,21 +74,3 @@ export default function TabsLayout() {
     </Tabs>
   );
 }
-
-const styles = StyleSheet.create({
-  tabBar: {
-    backgroundColor: colors.surface,
-    borderTopColor: colors.border,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    // En Android la barra necesita algo más de alto para respirar.
-    height: Platform.OS === 'ios' ? 88 : 64,
-    paddingTop: spacing.sm,
-  },
-  label: {
-    fontSize: typography.micro.fontSize,
-    fontWeight: typography.micro.fontWeight,
-  },
-  item: {
-    paddingVertical: spacing.xs,
-  },
-});
