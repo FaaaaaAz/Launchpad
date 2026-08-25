@@ -37,13 +37,44 @@ Otros comandos:
 
 | Pieza | Elección |
 | --- | --- |
-| Framework | Expo SDK 57 · React Native 0.86 |
+| Framework | Expo SDK 54 · React Native 0.81 |
 | Lenguaje | TypeScript en modo estricto |
+| iOS mínimo | 15.1 (requisito de Expo Go para SDK 54) |
 | Navegación | Expo Router (rutas por archivos, en `src/app/`) |
 | Persistencia | `expo-sqlite` con migraciones versionadas |
 | Notificaciones | `expo-notifications` (solo locales) |
 | Imágenes | `expo-image-picker` + `expo-file-system` |
 | Estado | React Context + hooks (sin librería externa) |
+
+### Por qué SDK 54 y no el último
+
+Expo Go solo soporta **una** versión de SDK a la vez, y la App Store entrega la
+Expo Go más nueva **compatible con el iOS del teléfono**. El iPhone de pruebas
+corre un iOS anterior a 16.4, que es lo que exige el SDK 57, así que su Expo Go
+se queda en SDK 54 y un proyecto en 57 le da *«Project is incompatible with this
+version of Expo Go»*.
+
+El proyecto está fijado a SDK 54 por esa razón, no por una limitación técnica: el
+código no usa ninguna API exclusiva de versiones posteriores (el salto 54 → 57 se
+hizo y se deshizo sin tocar una sola línea de `src/`).
+
+> ⚠️ **Actualizar el iOS y subir el SDK son la misma tarea.**
+> Expo Go soporta un solo SDK a la vez. En cuanto actualices el iOS, Expo Go
+> saltará al SDK más nuevo y este proyecto dejará de abrir con el mismo error,
+> pero invertido. Haz las dos cosas en la misma sesión.
+
+**Para subir de SDK:** actualiza el iOS del teléfono, reinstala Expo Go y luego:
+
+```bash
+npx expo install expo@latest
+npx expo install --fix
+npm run typecheck
+npx expo start --clear
+```
+
+El salto 54 → 57 se probó y no requirió ningún cambio en `src/`. La app habla con
+sus propias interfaces (`repositories`, `services`, `theme`), no con APIs del SDK,
+así que las migraciones de versión deberían seguir siendo baratas.
 
 ---
 
