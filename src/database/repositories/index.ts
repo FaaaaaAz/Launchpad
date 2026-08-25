@@ -1,0 +1,36 @@
+import { sqliteActivityRepository } from './activityRepository';
+import { sqliteCategoryRepository } from './categoryRepository';
+import { sqlitePaymentRepository } from './paymentRepository';
+import { sqliteReminderRepository } from './reminderRepository';
+import { sqliteSettingsRepository } from './settingsRepository';
+import { sqliteTaskRepository } from './taskRepository';
+import type { RepositoryRegistry } from './types';
+
+/**
+ * Punto único de conexión entre la lógica de negocio y la persistencia.
+ *
+ * Hoy todo apunta a SQLite. El día que entre Firebase, esta constante es el
+ * único archivo que cambia: se sustituye una implementación por otra (o se
+ * envuelve en una que escriba en ambos para sincronizar), y ni los servicios
+ * ni las pantallas se enteran.
+ */
+export const repositories: RepositoryRegistry = {
+  tasks: sqliteTaskRepository,
+  activities: sqliteActivityRepository,
+  categories: sqliteCategoryRepository,
+  payments: sqlitePaymentRepository,
+  reminders: sqliteReminderRepository,
+  settings: sqliteSettingsRepository,
+};
+
+export type {
+  ActivityFilter,
+  ActivityRepository,
+  CategoryRepository,
+  PaymentRepository,
+  ReminderRepository,
+  RepositoryRegistry,
+  SettingsRepository,
+  TaskFilter,
+  TaskRepository,
+} from './types';

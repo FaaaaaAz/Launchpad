@@ -1,0 +1,200 @@
+# Launchpad
+
+Aplicación móvil personal de organización: tareas, actividades (gimnasio, materias, hobbies),
+recordatorios locales y control económico básico de cada actividad.
+
+Todo funciona **100 % local**. No hay backend, cuentas ni sincronización.
+
+---
+
+## Cómo ejecutarla
+
+```bash
+npm install
+npx expo start
+```
+
+Escanea el QR con la cámara del iPhone y ábrelo en **Expo Go**.
+El teléfono y la computadora deben estar en la misma red Wi-Fi.
+
+Si la red bloquea la conexión directa:
+
+```bash
+npx expo start --tunnel
+```
+
+Otros comandos:
+
+| Comando | Qué hace |
+| --- | --- |
+| `npm start` | Servidor de desarrollo |
+| `npm run typecheck` | Verifica los tipos sin compilar |
+| `npx expo start --clear` | Arranca limpiando la caché de Metro |
+
+---
+
+## Stack
+
+| Pieza | Elección |
+| --- | --- |
+| Framework | Expo SDK 57 · React Native 0.86 |
+| Lenguaje | TypeScript en modo estricto |
+| Navegación | Expo Router (rutas por archivos, en `src/app/`) |
+| Persistencia | `expo-sqlite` con migraciones versionadas |
+| Notificaciones | `expo-notifications` (solo locales) |
+| Imágenes | `expo-image-picker` + `expo-file-system` |
+| Estado | React Context + hooks (sin librería externa) |
+
+---
+
+## Estructura
+
+```text
+src/
+├── app/                 Rutas de Expo Router (una pantalla = un archivo)
+│   ├── (tabs)/          Inicio · Ejercicio · Académico · Hobbies · Tareas
+│   ├── activity/        Detalle, creación y edición de actividades
+│   ├── task/            Creación y edición de tareas
+│   ├── onboarding.tsx
+│   └── settings.tsx
+│
+├── components/          Componentes sin lógica de negocio
+│   ├── ui/              Card, Button, Badge, Text, ListRow, estados…
+│   └── form/            Campos de formulario
+│
+├── features/            Un módulo por dominio funcional
+│   ├── activities/      Ejercicio + Académico + Hobbies (misma entidad)
+│   ├── tasks/
+│   ├── dashboard/
+│   └── notifications/
+│
+├── database/            Persistencia
+│   ├── migrations/      Cambios de esquema versionados
+│   ├── repositories/    Acceso a datos detrás de interfaces
+│   ├── database.ts      Conexión única
+│   └── sql.ts           Utilidades de mapeo
+│
+├── services/            Servicios transversales (notificaciones, imágenes)
+├── providers/           Contextos globales (base de datos, preferencias)
+├── hooks/               Hooks reutilizables
+├── types/               Modelos del dominio
+├── constants/           Configuración por dominio y enumeraciones
+├── theme/               Colores, espaciado, tipografía
+└── utils/               Fechas, formato, errores, IDs
+```
+
+---
+
+## Arquitectura
+
+El flujo de datos va siempre en una dirección:
+
+```text
+Pantalla  →  Provider  →  Service  →  Repository  →  SQLite
+ (UI)        (estado)     (reglas)    (interfaz)     (datos)
+```
+
+Cada capa tiene una responsabilidad y ninguna se salta a la siguiente.
+En concreto: **ninguna pantalla escribe SQL**, y ningún repositorio conoce reglas
+de negocio.
+
+### Decisiones que conviene conocer
+
+**Una sola entidad `Activity` para tres módulos.**
+Ejercicio, Académico y Hobbies tienen la misma forma (imagen, categoría, días,
+horario, estado, pagos). Se distinguen con el campo `domain`. Las tres pantallas
+son el mismo componente (`ActivityDomainScreen`) configurado desde
+`constants/domains.ts`. Agregar un módulo nuevo son dos cosas: una entrada en ese
+archivo y una ruta de cuatro líneas.
+
+**Los repositorios están detrás de interfaces.**
+`database/repositories/types.ts` define los contratos; `repositories/index.ts` decide
+qué implementación se usa. Cuando entre Firebase, se escribe un
+`firestoreTaskRepository` que cumpla `TaskRepository` y se cambia ese único
+archivo. Servicios y pantallas no se enteran.
+
+**IDs UUID y fechas ISO en UTC.**
+No se usan enteros autoincrementales. Es la decisión que, tomada al revés,
+obligaría a migrar todos los datos el día que exista sincronización.
+
+**El estado de pago se calcula, no se guarda.**
+Un `payment_status` almacenado quedaría obsoleto en cuanto pasara la fecha sin
+abrir la app, y la card mostraría «Pagada» sobre una membresía vencida.
+`getPaymentStatus()` lo deriva de `nextPaymentDate` cada vez que se pinta.
+
+**Las imágenes se guardan por clave relativa, no por URI absoluta.**
+En iOS la ruta del contenedor de la app incluye un UUID que cambia al
+actualizarla. Se guarda `activity-images/<id>.jpg` y se resuelve al mostrar con
+`imageStorage.resolve()`. Esa misma clave servirá como ruta de bucket en Firebase
+Storage.
+
+**Configuración no es una pestaña.**
+Seis pestañas aprietan demasiado las etiquetas en un iPhone. Vive en `/settings`,
+detrás del engranaje del dashboard, que es la sección que menos se abre.
+
+---
+
+## Modelo de datos
+
+```text
+Category ──┬─< Activity ──┬─< Payment
+           │              └─< Reminder  (targetType: 'payment' | 'activity')
+           └─< Task ────────< Reminder  (targetType: 'task')
+
+Routine ──< RoutineItem        (esquema listo, UI pendiente)
+```
+
+Los tipos viven en `src/types/models.ts` y el esquema SQL en
+`src/database/migrations/001_initial.ts`.
+
+`Reminder` es polimórfico a propósito (`targetType` + `targetId`): así un
+recordatorio puede colgar de una tarea, un pago o, más adelante, de una rutina
+o un hábito sin cambiar el esquema.
+
+### Cambiar el esquema
+
+Nunca se edita una migración ya ejecutada: se agrega la siguiente.
+
+1. Crea `src/database/migrations/002_lo_que_sea.ts` siguiendo el formato de la 001.
+2. Añádela al array `MIGRATIONS` en `migrations/index.ts`.
+3. Al abrir la app, `PRAGMA user_version` detecta el salto y la aplica dentro de
+   una transacción: si falla, revierte entera y la versión no avanza.
+
+---
+
+## Notificaciones y Expo Go
+
+Launchpad usa **solo notificaciones locales** (las programa el propio teléfono),
+y eso **funciona en Expo Go** sin ningún paso extra.
+
+Compruébalo desde **Configuración → Enviar notificación de prueba**: llega a los
+5 segundos.
+
+Lo que **no** funciona en Expo Go son las notificaciones *push remotas* (las que
+envía un servidor). Launchpad no las necesita hoy. Si algún día se quisieran
+—por ejemplo, para avisos entre dispositivos— haría falta un *development build*
+(`npx expo run:ios`), lo que a su vez requiere macOS o EAS Build. Mientras eso no
+ocurra, Expo Go es suficiente.
+
+---
+
+## Qué está hecho
+
+- [x] Bienvenida (se recuerda que ya la viste)
+- [x] Dashboard con progreso del día, tareas de hoy, actividades de hoy y avisos de pago
+- [x] Tareas: crear, editar, completar, eliminar, prioridad, categoría, fecha y hora
+- [x] Actividades: crear, editar, eliminar, imagen, días, horario, estado
+- [x] Detalle de actividad con registro de pagos e historial
+- [x] Recordatorios locales para tareas y vencimientos de pago
+- [x] Configuración: nombre, moneda, notificaciones, borrado de datos
+- [x] Persistencia en SQLite con migraciones
+
+## Qué sigue
+
+- Módulo de rutinas (el esquema ya existe, falta la UI)
+- Vista jerárquica del módulo académico (universidad → materia → tarea)
+- Estadísticas e historial de hábitos
+- Categorías creadas por el usuario
+- Pruebas automatizadas de los `selectors` y los servicios
+- ESLint (`npx expo lint`) si el proyecto crece
+- Firebase: autenticación, Firestore y Storage, sustituyendo los repositorios
