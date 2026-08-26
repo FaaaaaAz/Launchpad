@@ -231,6 +231,26 @@ export function formatTimeRange(start: TimeOfDay | null, end: TimeOfDay | null):
   return end ? `${start} – ${end}` : start;
 }
 
+/** Mes calendario en formato 'YYYY-MM'. Sirve de clave de periodo mensual. */
+export function currentMonth(date: Date = new Date()): string {
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}`;
+}
+
+export function monthOf(date: DateOnly): string {
+  return date.slice(0, 7);
+}
+
+/** Franja del día. La UI decide qué ícono corresponde a cada una. */
+export type DayPeriod = 'night' | 'morning' | 'afternoon' | 'evening';
+
+export function dayPeriod(date: Date = new Date()): DayPeriod {
+  const hour = date.getHours();
+  if (hour < 6) return 'night';
+  if (hour < 12) return 'morning';
+  if (hour < 19) return 'afternoon';
+  return 'evening';
+}
+
 /** Saludo según la hora, usado en el dashboard. */
 export function greetingForNow(date: Date = new Date()): string {
   const hour = date.getHours();

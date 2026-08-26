@@ -4,6 +4,8 @@ import type {
   ActivityStatus,
   Category,
   CreateInput,
+  FinanceEntry,
+  FinanceKind,
   DateOnly,
   ID,
   Payment,
@@ -81,6 +83,20 @@ export interface ReminderRepository {
   remove(id: ID): Promise<void>;
 }
 
+export interface FinanceFilter {
+  kind?: FinanceKind;
+  /** Excluye los movimientos archivados. */
+  onlyActive?: boolean;
+}
+
+export interface FinanceRepository {
+  list(filter?: FinanceFilter): Promise<FinanceEntry[]>;
+  findById(id: ID): Promise<FinanceEntry | null>;
+  create(input: CreateInput<FinanceEntry>): Promise<FinanceEntry>;
+  update(id: ID, patch: UpdateInput<FinanceEntry>): Promise<FinanceEntry>;
+  remove(id: ID): Promise<void>;
+}
+
 /** Almacén clave/valor para preferencias locales. */
 export interface SettingsRepository {
   getAll(): Promise<Record<string, string>>;
@@ -94,6 +110,7 @@ export interface RepositoryRegistry {
   tasks: TaskRepository;
   activities: ActivityRepository;
   categories: CategoryRepository;
+  finance: FinanceRepository;
   payments: PaymentRepository;
   reminders: ReminderRepository;
   settings: SettingsRepository;

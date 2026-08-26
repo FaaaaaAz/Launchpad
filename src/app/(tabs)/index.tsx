@@ -20,8 +20,10 @@ import {
   selectPaymentAlerts,
 } from '@/features/activities/activitySelectors';
 import { DashboardHeader } from '@/features/dashboard/components/DashboardHeader';
+import { FinanceCard } from '@/features/dashboard/components/FinanceCard';
 import { DayProgressCard } from '@/features/dashboard/components/DayProgressCard';
-import { ModuleSummaryRow } from '@/features/dashboard/components/ModuleSummaryRow';
+import { ModuleCards } from '@/features/dashboard/components/ModuleCards';
+import { useFinance } from '@/features/finance/FinanceProvider';
 import { TaskCard } from '@/features/tasks/components/TaskCard';
 import { useTasks } from '@/features/tasks/TasksProvider';
 import { selectDayScope } from '@/features/tasks/taskSelectors';
@@ -40,9 +42,10 @@ const MAX_TASKS_PREVIEW = 4;
  * mostrar huecos vacíos desde el primer día.
  */
 export default function DashboardScreen() {
-  const { userName } = useSettings();
+  const { userName, currency } = useSettings();
   const { tasks, toggleTask, refresh: refreshTasks } = useTasks();
   const { activities, refresh: refreshActivities } = useActivities();
+  const { summary: financeSummary, refresh: refreshFinance } = useFinance();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const day = useMemo(() => selectDayScope(tasks), [tasks]);
@@ -56,9 +59,9 @@ export default function DashboardScreen() {
 
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
-    await Promise.all([refreshTasks(), refreshActivities()]);
+    await Promise.all([refreshTasks(), refreshActivities(), refreshFinance()]);
     setIsRefreshing(false);
-  }, [refreshTasks, refreshActivities]);
+  }, [refreshTasks, refreshActivities, refreshFinance]);
 
   return (
     <Screen>
@@ -82,7 +85,9 @@ export default function DashboardScreen() {
             overdue={day.overdue}
           />
 
-          <ModuleSummaryRow counts={counts} />
+          <FinanceCard summary={financeSummary} currency={currency} />
+
+          <ModuleCards counts={counts} />
 
           {previewTasks.length > 0 ? (
             <View>
@@ -149,9 +154,9 @@ export default function DashboardScreen() {
           {paymentAlerts.length > 0 ? (
             <View>
               <SectionHeader
-                title="Pagos"
-                icon="wallet-outline"
-                subtitle="Vencimientos que necesitan atención"
+                title="Pagos de actividades"
+                icon="card-outline"
+                subtitle="Membresías y cuotas por vencer"
               />
 
               <Card>
@@ -243,6 +248,7 @@ const styles = StyleSheet.create({
     height: StyleSheet.hairlineWidth,
     backgroundColor: colors.border,
   },
+
   welcome: {
     gap: spacing.md,
   },

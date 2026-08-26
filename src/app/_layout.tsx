@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { BootScreen } from '@/components/BootScreen';
 import { ActivitiesProvider } from '@/features/activities/ActivitiesProvider';
+import { FinanceProvider } from '@/features/finance/FinanceProvider';
 import { TasksProvider } from '@/features/tasks/TasksProvider';
 import { MascotWelcome } from '@/features/welcome/MascotWelcome';
 import { DatabaseProvider, useDatabaseStatus } from '@/providers/DatabaseProvider';
@@ -28,7 +29,9 @@ export default function RootLayout() {
           <SettingsProvider>
             <TasksProvider>
               <ActivitiesProvider>
-                <RootNavigator />
+                <FinanceProvider>
+                  <RootNavigator />
+                </FinanceProvider>
               </ActivitiesProvider>
             </TasksProvider>
           </SettingsProvider>
@@ -92,6 +95,9 @@ function AppStack() {
       <Stack.Protected guard={onboardingCompleted}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="settings" />
+        <Stack.Screen name="finance/index" />
+        <Stack.Screen name="finance/new" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="finance/[id]" options={{ presentation: 'modal' }} />
         <Stack.Screen name="activity/[id]" />
         <Stack.Screen name="activity/new" options={{ presentation: 'modal' }} />
         <Stack.Screen name="activity/edit/[id]" options={{ presentation: 'modal' }} />

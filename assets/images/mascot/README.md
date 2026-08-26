@@ -10,6 +10,15 @@ de `src/constants/assets.ts`.
 | Archivo | Dónde se usa |
 | --- | --- |
 | `welcome.png` | Bienvenida tras el onboarding |
+| `gym.png` | Card de Ejercicio en el dashboard |
+| `study.png` | Card de Académico en el dashboard |
+| `hobby.png` | Card de Hobbies en el dashboard |
+| `finance.png` | Card de la alcancía y resumen de finanzas |
+| `football.png` | Libre, para actividades deportivas |
+
+Se nombran por la **escena que muestran**, no por el módulo que las usa. Así una
+ilustración puede reutilizarse o cambiarse sin renombrar archivos; el vínculo con
+cada módulo se declara en `src/constants/domains.ts`.
 
 ## Al agregar una imagen nueva
 
@@ -19,8 +28,9 @@ de `src/constants/assets.ts`.
 
 ## Recomendaciones
 
-- **Fondo transparente** siempre que sea posible: permite superponer la mascota
-  sobre cualquier pantalla sin que se vea el rectángulo de la imagen.
-  `welcome.png` trae fondo propio, y por eso se difumina con degradados en
-  `MascotWelcome.tsx`.
-- Alto de 1024 px basta de sobra; más solo agrega peso al bundle.
+- **Fondo transparente**, siempre. Permite superponer la mascota sobre cualquier
+  superficie sin máscaras ni degradados. Todas las imágenes actuales lo cumplen.
+- **Ancho de 512 px es suficiente.** En pantalla se dibujan entre 72 y 140 px, así
+  que incluso a densidad 3x sobra resolución. Los archivos actuales rondan los
+  1300 px y pesan ~2 MB cada uno: se ven igual reducidos y el bundle adelgaza
+  muchísimo.

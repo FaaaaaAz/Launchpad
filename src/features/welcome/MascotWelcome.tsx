@@ -1,4 +1,3 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useEffect, useRef } from 'react';
 import {
   Animated,
@@ -12,7 +11,7 @@ import {
 
 import { Text } from '@/components/ui';
 import { mascot } from '@/constants';
-import { colors, gradients, motion, spacing } from '@/theme';
+import { colors, motion, spacing } from '@/theme';
 
 export interface MascotWelcomeProps {
   userName: string;
@@ -122,25 +121,10 @@ export function MascotWelcome({ userName, onDismiss }: MascotWelcomeProps) {
         style={[styles.mascotLayer, { transform: [{ translateX: mascotX }] }]}
         pointerEvents="none"
       >
+        {/* La imagen tiene fondo transparente, así que se dibuja tal cual.
+            No lleva ningún degradado encima: superponerle uno creaba una
+            banda oscura visible a media pantalla. */}
         <Image source={mascot.welcome} style={styles.mascot} resizeMode="contain" />
-
-        {/* La imagen trae fondo propio. Estos degradados difuminan sus bordes
-            contra el fondo de la app para que el zorro no se vea recortado
-            dentro de un rectángulo. */}
-        <LinearGradient
-          colors={gradients.fadeToBackground}
-          start={{ x: 1, y: 0 }}
-          end={{ x: 0, y: 0 }}
-          style={styles.fadeLeft}
-          pointerEvents="none"
-        />
-        <LinearGradient
-          colors={gradients.fadeToBackground}
-          start={{ x: 0, y: 1 }}
-          end={{ x: 0, y: 0 }}
-          style={styles.fadeTop}
-          pointerEvents="none"
-        />
       </Animated.View>
 
       <Animated.View
@@ -180,34 +164,24 @@ const styles = StyleSheet.create({
   },
   mascotLayer: {
     position: 'absolute',
-    right: 0,
+    // Sobresale un poco por la derecha: da sensación de que el zorro entra
+    // en escena en lugar de estar pegado al borde.
+    right: -20,
     bottom: 0,
-    width: '86%',
-    height: '72%',
+    width: '94%',
+    // La proporción del contenedor iguala la de la imagen, así `contain` la
+    // dibuja sin dejar franjas vacías arriba y abajo.
+    aspectRatio: 1024 / 1536,
   },
   mascot: {
     width: '100%',
     height: '100%',
   },
-  fadeLeft: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: '45%',
-  },
-  fadeTop: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    height: '30%',
-  },
   textLayer: {
     position: 'absolute',
     left: spacing.xxl,
     right: spacing.xxl,
-    top: '14%',
+    top: '10%',
     gap: spacing.sm,
   },
   greeting: {
@@ -215,7 +189,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     marginTop: spacing.xs,
-    maxWidth: '78%',
+    maxWidth: '70%',
   },
   hint: {
     marginTop: spacing.xxl,

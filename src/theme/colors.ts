@@ -101,23 +101,25 @@ export const gradients = {
   brand: [palette.yellow400, palette.yellow500, palette.orange500],
   /** Amarillo suave, para superficies grandes que no deben gritar. */
   accent: [palette.yellow400, palette.yellow600],
-  /** Negro translúcido → opaco. Para difuminar bordes de imágenes. */
-  fadeToBackground: ['rgba(5, 5, 6, 0)', 'rgba(5, 5, 6, 0.85)', palette.black950],
   /** Realce sutil sobre superficies oscuras. */
   surface: [palette.black700, palette.black800],
 } as const;
 
 /**
- * Color identitario de cada módulo.
+ * Color de acento de cada módulo.
  *
- * Se mantienen dentro del rango amarillo-naranja para no romper la identidad
- * de la app: los módulos se distinguen sobre todo por su ícono, y el color
- * solo acompaña.
+ * Los tres comparten el amarillo de marca a propósito: tonos distintos por
+ * módulo hacían que la app pareciera cambiar de identidad al moverse entre
+ * pestañas. Los módulos se distinguen por su ícono y su ilustración, no por
+ * el color.
+ *
+ * La estructura se conserva por si algún módulo futuro necesitara realmente
+ * separarse del resto.
  */
 export const domainColors = {
-  exercise: palette.orange500,
+  exercise: palette.yellow500,
   academic: palette.yellow500,
-  hobby: palette.yellow300,
+  hobby: palette.yellow500,
 } as const;
 
 export type AppColor = keyof typeof colors;

@@ -4,6 +4,8 @@ export type {
   ActivityFilter,
   ActivityRepository,
   CategoryRepository,
+  FinanceFilter,
+  FinanceRepository,
   PaymentRepository,
   ReminderRepository,
   RepositoryRegistry,

@@ -16,6 +16,7 @@ Aplicación personal local (sin backend). Ver `README.md` para la arquitectura c
   `src/constants/assets.ts` y úsala desde ahí.
 - **Nunca editar una migración ya aplicada.** Se agrega la siguiente en `src/database/migrations/`.
 - **Nunca guardar un valor derivable.** El estado de pago se calcula con `getPaymentStatus()`.
+- **Las ilustraciones van a 512 px como máximo.** Ver `assets/images/mascot/README.md`.
 - **Ejercicio, Académico y Hobbies son la misma entidad** (`Activity` + `domain`). No dupliques
   pantallas: configura `src/constants/domains.ts`.
 - Los textos de la interfaz están en español.

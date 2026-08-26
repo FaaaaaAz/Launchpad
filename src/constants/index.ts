@@ -19,6 +19,13 @@ export {
 } from './options';
 export type { OptionMeta } from './options';
 
+export {
+  FINANCE_KIND_CONFIG,
+  FINANCE_KIND_ORDER,
+  getFinanceKindConfig,
+} from './finance';
+export type { FinanceKindConfig } from './finance';
+
 export { logo, mascot } from './assets';
 export type { MascotKey } from './assets';
 

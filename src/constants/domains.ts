@@ -4,6 +4,8 @@ import type { Ionicons } from '@expo/vector-icons';
 import { domainColors } from '@/theme';
 import type { ActivityDomain } from '@/types';
 
+import type { MascotKey } from './assets';
+
 export type IconName = ComponentProps<typeof Ionicons>['name'];
 
 /**
@@ -20,6 +22,8 @@ export interface DomainConfig {
   /** Frase corta bajo el título. */
   tagline: string;
   icon: IconName;
+  /** Ilustración de la mascota que representa al módulo. */
+  mascot: MascotKey;
   color: string;
   /** Cómo se llama una unidad en este módulo. Ej: 'actividad', 'materia'. */
   itemLabel: string;
@@ -39,6 +43,7 @@ export const DOMAIN_CONFIG: Record<ActivityDomain, DomainConfig> = {
     title: 'Ejercicio',
     tagline: 'Tus actividades físicas y membresías',
     icon: 'barbell',
+    mascot: 'gym',
     color: domainColors.exercise,
     itemLabel: 'actividad',
     itemLabelPlural: 'actividades',
@@ -55,6 +60,7 @@ export const DOMAIN_CONFIG: Record<ActivityDomain, DomainConfig> = {
     title: 'Académico',
     tagline: 'Universidad, materias y proyectos',
     icon: 'school',
+    mascot: 'study',
     color: domainColors.academic,
     itemLabel: 'materia',
     itemLabelPlural: 'materias',
@@ -71,6 +77,7 @@ export const DOMAIN_CONFIG: Record<ActivityDomain, DomainConfig> = {
     title: 'Hobbies',
     tagline: 'Lo que haces porque quieres',
     icon: 'color-palette',
+    mascot: 'hobby',
     color: domainColors.hobby,
     itemLabel: 'hobby',
     itemLabelPlural: 'hobbies',

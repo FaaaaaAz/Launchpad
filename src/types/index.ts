@@ -16,6 +16,8 @@ export type {
   ActivityStatus,
   BillingCycle,
   Category,
+  FinanceEntry,
+  FinanceKind,
   Payment,
   PaymentStatus,
   Reminder,

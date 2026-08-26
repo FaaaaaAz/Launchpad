@@ -86,6 +86,7 @@ src/
 ├── app/                 Rutas de Expo Router (una pantalla = un archivo)
 │   ├── (tabs)/          Inicio · Ejercicio · Académico · Hobbies · Tareas
 │   ├── activity/        Detalle, creación y edición de actividades
+│   ├── finance/         Alcancía y sus formularios
 │   ├── task/            Creación y edición de tareas
 │   ├── onboarding.tsx
 │   └── settings.tsx
@@ -99,6 +100,7 @@ src/
 │   ├── activities/      Ejercicio + Académico + Hobbies (misma entidad)
 │   ├── tasks/
 │   ├── dashboard/
+│   ├── finance/         Alcancía: ingresos, gastos, deudas y ahorros
 │   ├── welcome/         Bienvenida con la mascota
 │   └── notifications/
 │
@@ -174,6 +176,16 @@ Metro exige que `require()` reciba una cadena literal, así que las rutas no se
 pueden construir dinámicamente. Todas viven en `src/constants/assets.ts`, y las
 pantallas usan `logo` o `mascot.<clave>`.
 
+**El control mensual guarda el mes, no un booleano.**
+`FinanceEntry.lastSettledMonth` almacena `'2026-08'`. Comparándolo con el mes en
+curso, el control se reinicia solo al cambiar de mes: no hace falta ninguna tarea
+programada que limpie banderas, ni que la app se abra el día 1.
+
+**Las ilustraciones se guardan a 512 px.**
+En pantalla se dibujan entre 72 y 140 px. Los originales rondaban los 1300 px y
+pesaban 12 MB en total, lo que hacía visible la carga en Expo Go; a 512 px pesan
+2,5 MB y se ven igual. Se redujeron con `zlib` puro, sin agregar dependencias.
+
 **Configuración no es una pestaña.**
 Seis pestañas aprietan demasiado las etiquetas en un iPhone. Vive en `/settings`,
 detrás del engranaje del dashboard, que es la sección que menos se abre.
@@ -186,6 +198,8 @@ detrás del engranaje del dashboard, que es la sección que menos se abre.
 Category ──┬─< Activity ──┬─< Payment
            │              └─< Reminder  (targetType: 'payment' | 'activity')
            └─< Task ────────< Reminder  (targetType: 'task')
+
+FinanceEntry                   (kind: income | expense | debt | saving)
 
 Routine ──< RoutineItem        (esquema listo, UI pendiente)
 ```
@@ -237,6 +251,7 @@ ocurra, Expo Go es suficiente.
 - [x] Identidad visual negro/amarillo con degradados de marca
 - [x] Barra de pestañas flotante con burbuja deslizante
 - [x] Bienvenida animada con la mascota
+- [x] Alcancía: ingresos fijos, gastos fijos, deudas, ahorros y control mensual
 
 ## Qué sigue
 

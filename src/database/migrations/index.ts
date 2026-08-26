@@ -1,6 +1,7 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
 import { migration001 } from './001_initial';
+import { migration002 } from './002_finance';
 import type { Migration } from './types';
 
 export type { Migration, SQLiteExecutor } from './types';
@@ -8,7 +9,7 @@ export type { Migration, SQLiteExecutor } from './types';
 /**
  * Lista de migraciones en orden. Agregar las nuevas al final.
  */
-const MIGRATIONS: Migration[] = [migration001];
+const MIGRATIONS: Migration[] = [migration001, migration002];
 
 /** Versión de esquema que espera esta build de la app. */
 export const TARGET_SCHEMA_VERSION = MIGRATIONS.reduce(

@@ -32,6 +32,17 @@ export type ReminderStatus = 'scheduled' | 'delivered' | 'cancelled';
 
 export type ReminderRepeat = 'none' | 'daily' | 'weekly';
 
+/**
+ * Tipo de movimiento de la alcancía.
+ *
+ * Los cuatro comparten forma (nombre, monto, periodicidad), así que se modelan
+ * con una sola entidad discriminada, igual que las actividades. Lo que cambia
+ * es el significado del monto:
+ * - `income` / `expense`: monto mensual.
+ * - `debt` / `saving`: cuota o aporte mensual, más un total y un acumulado.
+ */
+export type FinanceKind = 'income' | 'expense' | 'debt' | 'saving';
+
 /* -------------------------------------------------------------------------- */
 /* Entidades                                                                  */
 /* -------------------------------------------------------------------------- */
@@ -132,6 +143,34 @@ export interface Reminder extends Entity {
   repeat: ReminderRepeat;
   notificationId: string | null;
   status: ReminderStatus;
+}
+
+/**
+ * Movimiento fijo de la alcancía: un sueldo, un alquiler, una deuda, una meta
+ * de ahorro.
+ */
+export interface FinanceEntry extends Entity {
+  kind: FinanceKind;
+  name: string;
+  /** Monto mensual: sueldo, gasto, cuota o aporte. */
+  amount: number;
+  currency: string;
+  /** Solo deudas y ahorros: total a pagar o meta a alcanzar. */
+  targetAmount: number | null;
+  /** Solo deudas y ahorros: cuánto se lleva pagado o ahorrado. */
+  settledAmount: number | null;
+  /** Día del mes en que corresponde (1-31). */
+  dueDay: number | null;
+  /**
+   * Último mes marcado como cubierto, en formato 'YYYY-MM'.
+   *
+   * Guardar el mes (y no un booleano) hace que el control mensual se reinicie
+   * solo al cambiar de mes, sin necesidad de una tarea programada que limpie
+   * banderas.
+   */
+  lastSettledMonth: string | null;
+  notes: string | null;
+  isActive: boolean;
 }
 
 /**

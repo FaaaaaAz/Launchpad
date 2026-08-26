@@ -1,5 +1,6 @@
 import { sqliteActivityRepository } from './activityRepository';
 import { sqliteCategoryRepository } from './categoryRepository';
+import { sqliteFinanceRepository } from './financeRepository';
 import { sqlitePaymentRepository } from './paymentRepository';
 import { sqliteReminderRepository } from './reminderRepository';
 import { sqliteSettingsRepository } from './settingsRepository';
@@ -18,6 +19,7 @@ export const repositories: RepositoryRegistry = {
   tasks: sqliteTaskRepository,
   activities: sqliteActivityRepository,
   categories: sqliteCategoryRepository,
+  finance: sqliteFinanceRepository,
   payments: sqlitePaymentRepository,
   reminders: sqliteReminderRepository,
   settings: sqliteSettingsRepository,
@@ -27,6 +29,8 @@ export type {
   ActivityFilter,
   ActivityRepository,
   CategoryRepository,
+  FinanceFilter,
+  FinanceRepository,
   PaymentRepository,
   ReminderRepository,
   RepositoryRegistry,
