@@ -23,6 +23,8 @@ import { addDays, addMonths, combine, daysUntil, formatDateLong, today } from '@
 import { ValidationError } from '@/utils/errors';
 import { parseAmount } from '@/utils/format';
 
+import { syncGeneratedTrainings } from './activityEventService';
+
 /**
  * Reglas de negocio de las actividades, compartidas por Ejercicio, Académico
  * y Hobbies.
@@ -283,10 +285,37 @@ export async function createActivity(
     ...draftToEntityFields(draft),
   });
 
+  // Los entrenamientos del horario se rellenan al crear: el usuario marcó
+  // martes y jueves, así que espera verlos ya en el calendario.
+  await syncGeneratedTrainings(activity);
+
   return {
     activity,
     reminder: await syncPaymentReminder(activity, draft.paymentReminderEnabled),
   };
+}
+
+/**
+ * Campos de los que depende el horario automático.
+ *
+ * Solo se regeneran los entrenamientos si cambia alguno de estos. Si no, editar
+ * el nombre devolvería al calendario los días que el usuario había quitado a
+ * mano por un feriado.
+ */
+function scheduleSignature(source: {
+  weekdays: Weekday[];
+  startDate: DateOnly | null;
+  endDate: DateOnly | null;
+  billingCycle: BillingCycle;
+  status: ActivityStatus;
+}): string {
+  return [
+    [...source.weekdays].sort((a, b) => a - b).join(','),
+    source.startDate ?? '',
+    source.endDate ?? '',
+    source.billingCycle,
+    source.status,
+  ].join('|');
 }
 
 export async function updateActivity(
@@ -295,7 +324,12 @@ export async function updateActivity(
 ): Promise<ActivityMutationResult> {
   assertValid(draft);
 
+  const before = scheduleSignature(current);
   const activity = await repositories.activities.update(current.id, draftToEntityFields(draft));
+
+  if (scheduleSignature(activity) !== before) {
+    await syncGeneratedTrainings(activity);
+  }
 
   // Si se cambió la foto, la anterior queda huérfana ocupando espacio.
   if (current.imageKey && current.imageKey !== draft.imageKey) {

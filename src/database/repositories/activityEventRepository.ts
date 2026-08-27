@@ -1,4 +1,11 @@
-import type { ActivityEvent, ActivityEventKind, CreateInput, ID, UpdateInput } from '@/types';
+import type {
+  ActivityEvent,
+  ActivityEventKind,
+  CreateInput,
+  DateOnly,
+  ID,
+  UpdateInput,
+} from '@/types';
 import { nowISO, today } from '@/utils/date';
 import { AppError } from '@/utils/errors';
 import { createId } from '@/utils/id';
@@ -15,6 +22,7 @@ interface ActivityEventRow {
   title: string | null;
   notes: string | null;
   completed: number;
+  is_generated: number;
   created_at: string;
   updated_at: string;
 }
@@ -30,6 +38,7 @@ function toDomain(row: ActivityEventRow): ActivityEvent {
     title: row.title,
     notes: row.notes,
     completed: intToBool(row.completed),
+    isGenerated: intToBool(row.is_generated),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -45,6 +54,8 @@ function toColumns(
     title: input.title,
     notes: input.notes,
     completed: input.completed === undefined ? undefined : boolToInt(input.completed),
+    is_generated:
+      input.isGenerated === undefined ? undefined : boolToInt(input.isGenerated),
   };
 }
 
@@ -86,6 +97,50 @@ export const sqliteActivityEventRepository: ActivityEventRepository = {
     return result;
   },
 
+  /**
+   * Inserta varios días en una sola transacción.
+   *
+   * Un mes de entrenamientos son entre 4 y 12 filas; hacerlas una a una
+   * dispararía ese número de escrituras a disco en vez de una.
+   */
+  async createMany(inputs: CreateInput<ActivityEvent>[]): Promise<void> {
+    if (inputs.length === 0) return;
+
+    const db = await getDatabase();
+    const timestamp = nowISO();
+
+    await db.withExclusiveTransactionAsync(async (txn) => {
+      for (const input of inputs) {
+        await txn.runAsync(
+          `INSERT INTO activity_events
+             (id, activity_id, date, kind, title, notes, completed, is_generated,
+              created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            createId(),
+            input.activityId,
+            input.date,
+            input.kind,
+            input.title,
+            input.notes,
+            boolToInt(input.completed),
+            boolToInt(input.isGenerated),
+            timestamp,
+            timestamp,
+          ],
+        );
+      }
+    });
+  },
+
+  async removeGeneratedFrom(activityId: ID, from: DateOnly): Promise<void> {
+    const db = await getDatabase();
+    await db.runAsync(
+      'DELETE FROM activity_events WHERE activity_id = ? AND is_generated = 1 AND date >= ?',
+      [activityId, from],
+    );
+  },
+
   async findById(id: ID): Promise<ActivityEvent | null> {
     const db = await getDatabase();
     const row = await db.getFirstAsync<ActivityEventRow>(
@@ -107,8 +162,9 @@ export const sqliteActivityEventRepository: ActivityEventRepository = {
 
     await db.runAsync(
       `INSERT INTO activity_events
-         (id, activity_id, date, kind, title, notes, completed, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         (id, activity_id, date, kind, title, notes, completed, is_generated,
+          created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         event.id,
         event.activityId,
@@ -117,6 +173,7 @@ export const sqliteActivityEventRepository: ActivityEventRepository = {
         event.title,
         event.notes,
         boolToInt(event.completed),
+        boolToInt(event.isGenerated),
         event.createdAt,
         event.updatedAt,
       ],

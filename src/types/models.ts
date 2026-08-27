@@ -128,6 +128,14 @@ export interface ActivityEvent extends Entity {
   notes: string | null;
   /** Si ya se cumplió. Permite ver la constancia del mes de un vistazo. */
   completed: boolean;
+  /**
+   * Si lo creó la app a partir de los días de entrenamiento de la actividad.
+   *
+   * Permite rehacer el horario automático sin tocar lo que anotó el usuario:
+   * al cambiar los días solo se regeneran los generados, y los partidos y días
+   * extra sobreviven.
+   */
+  isGenerated: boolean;
 }
 
 /** Un pago concreto realizado sobre una actividad. */

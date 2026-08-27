@@ -62,6 +62,10 @@ export interface ActivityRepository {
 
 export interface ActivityEventRepository {
   listByActivity(activityId: ID): Promise<ActivityEvent[]>;
+  /** Inserta varios días de una vez, dentro de una sola transacción. */
+  createMany(inputs: CreateInput<ActivityEvent>[]): Promise<void>;
+  /** Borra los días generados por la app desde una fecha en adelante. */
+  removeGeneratedFrom(activityId: ID, from: DateOnly): Promise<void>;
   /** Próximo evento de cada actividad, indexado por actividad. */
   listNextByActivity(): Promise<Map<ID, ActivityEvent>>;
   findById(id: ID): Promise<ActivityEvent | null>;

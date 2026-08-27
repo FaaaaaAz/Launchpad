@@ -1,6 +1,8 @@
 export { Badge } from './Badge';
 export type { BadgeProps } from './Badge';
 
+export { BottomSheet } from './BottomSheet';
+export type { BottomSheetProps } from './BottomSheet';
 export { Button } from './Button';
 export type { ButtonProps } from './Button';
 

@@ -1,12 +1,5 @@
 import { useState } from 'react';
-import {
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { Image, Platform, ScrollView, StyleSheet, View } from 'react-native';
 
 import { TextField } from '@/components/form';
 import { Button, Screen, Text } from '@/components/ui';
@@ -21,6 +14,10 @@ import { colors, radius, spacing } from '@/theme';
  * No hay cuenta, contraseña ni correo: solo un nombre opcional para
  * personalizar el saludo. Cuando llegue la autenticación, esta pantalla es el
  * lugar natural donde añadirla sin tocar el resto de la app.
+ *
+ * El teclado se resuelve con `automaticallyAdjustKeyboardInsets`, igual que en
+ * el resto de formularios: desplaza el campo enfocado hasta hacerlo visible en
+ * vez de limitarse a encoger el contenedor.
  */
 export default function OnboardingScreen() {
   const { completeOnboarding } = useSettings();
@@ -32,69 +29,63 @@ export default function OnboardingScreen() {
 
   return (
     <Screen edges={['top', 'bottom']}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.flex}
+      <ScrollView
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+        showsVerticalScrollIndicator={false}
+        automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
       >
-        <ScrollView
-          contentContainerStyle={styles.content}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.hero}>
-            <Image source={logo} style={styles.logo} resizeMode="contain" />
+        <View style={styles.hero}>
+          <Image source={logo} style={styles.logo} resizeMode="contain" />
 
-            <Text variant="display" style={styles.wordmark}>
-              LAUNCHPAD
-            </Text>
+          <Text variant="display" style={styles.wordmark}>
+            LAUNCHPAD
+          </Text>
 
-            <Text variant="body" tone="secondary">
-              Tu plataforma de lanzamiento. Con {MASCOT_NAME} de copiloto.
-            </Text>
+          <Text variant="body" tone="secondary">
+            Tu plataforma de lanzamiento. Con {MASCOT_NAME} de copiloto.
+          </Text>
 
-            <View style={styles.manifesto}>
-              {['Organiza.', 'Avanza.', 'Construye.'].map((line, index) => (
-                <Text
-                  key={line}
-                  variant="title"
-                  color={index === 2 ? colors.accent : colors.textPrimary}
-                >
-                  {line}
-                </Text>
-              ))}
-            </View>
+          <View style={styles.manifesto}>
+            {['Organiza.', 'Avanza.', 'Construye.'].map((line, index) => (
+              <Text
+                key={line}
+                variant="title"
+                color={index === 2 ? colors.accent : colors.textPrimary}
+              >
+                {line}
+              </Text>
+            ))}
           </View>
+        </View>
 
-          <View style={styles.form}>
-            <TextField
-              label="¿Cómo te llamas?"
-              value={name}
-              onChangeText={setName}
-              placeholder="Tu nombre"
-              hint="Opcional. Solo se usa para saludarte y se guarda en tu teléfono."
-              maxLength={40}
-              autoCapitalize="words"
-            />
+        <View style={styles.form}>
+          <TextField
+            label="¿Cómo te llamas?"
+            value={name}
+            onChangeText={setName}
+            placeholder="Tu nombre"
+            hint="Opcional. Solo se usa para saludarte y se guarda en tu teléfono."
+            maxLength={40}
+            autoCapitalize="words"
+          />
 
-            <Button
-              label="Comenzar"
-              onPress={() => void start.run()}
-              loading={start.isRunning}
-              fullWidth
-              size="large"
-              icon="rocket-outline"
-            />
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+          <Button
+            label="Comenzar"
+            onPress={() => void start.run()}
+            loading={start.isRunning}
+            fullWidth
+            size="large"
+            icon="rocket-outline"
+          />
+        </View>
+      </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
   content: {
     flexGrow: 1,
     justifyContent: 'space-between',

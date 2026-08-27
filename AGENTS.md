@@ -22,6 +22,12 @@ Aplicación personal local (sin backend). Ver `README.md` para la arquitectura c
 - **Ejercicio, Académico y Hobbies son la misma entidad** (`Activity` + `domain`). No dupliques
   pantallas: configura `src/constants/domains.ts`.
 - Los textos de la interfaz están en español.
+- **Teclado.** En pantallas con scroll se usa `automaticallyAdjustKeyboardInsets` (desplaza
+  el campo enfocado); en hojas ancladas abajo, el `BottomSheet` compartido. Nunca un
+  `KeyboardAvoidingView` envolviendo un ScrollView: solo lo encoge y el último campo
+  sigue quedando tapado.
+- **Cuadrículas.** Anchos porcentuales con relleno interno y margen negativo, nunca
+  porcentajes combinados con `gap`: la suma pasa del 100 % y las celdas se estrujan.
 - Toda pantalla con datos maneja los tres estados: cargando, vacío y error
   (`components/ui/States.tsx`).
 

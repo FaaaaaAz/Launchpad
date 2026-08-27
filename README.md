@@ -186,6 +186,15 @@ En fútbol se juegan partidos, en natación se compite y en boxeo se pelea. Ese
 texto vive en `SportConfig.matchLabel`, junto con la frase de PAD. Es lo que hace
 que la app se sienta hecha para tu deporte y no un formulario genérico.
 
+**Los entrenamientos se generan solos, pero acotados.**
+Al crear una actividad con días marcados, la app rellena el calendario con esos
+entrenamientos durante **un ciclo de cobro** (mensual = un mes) y se detiene. Un
+calendario que se repite hasta el infinito deja de ser información. Los días
+generados llevan `isGenerated`, así que al cambiar el horario se rehacen solo
+ellos —de hoy en adelante— y los partidos y días extra del usuario sobreviven.
+Editar el nombre no regenera nada: se compara una firma de los campos que
+realmente definen el horario.
+
 **El control mensual guarda el mes, no un booleano.**
 `FinanceEntry.lastSettledMonth` almacena `'2026-08'`. Comparándolo con el mes en
 curso, el control se reinicia solo al cambiar de mes: no hace falta ninguna tarea
@@ -270,6 +279,7 @@ ocurra, Expo Go es suficiente.
 
 - Módulo de rutinas (el esquema ya existe, falta la UI)
 - Recordatorios automáticos de los días anotados en el calendario
+- Rellenar otro ciclo de entrenamientos cuando se registra el pago siguiente
 - Vista jerárquica del módulo académico (universidad → materia → tarea)
 - Estadísticas e historial de hábitos
 - Categorías creadas por el usuario
