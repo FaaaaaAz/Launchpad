@@ -58,6 +58,7 @@ export async function clearUserData(): Promise<void> {
   const db = await getDatabase();
   await db.withExclusiveTransactionAsync(async (txn) => {
     await txn.execAsync(`
+      DELETE FROM activity_events;
       DELETE FROM finance_entries;
       DELETE FROM routine_items;
       DELETE FROM routines;

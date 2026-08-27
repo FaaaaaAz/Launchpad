@@ -1,4 +1,5 @@
-import { DEFAULT_PAYMENT_REMINDER_DAYS, PAYMENT_DUE_SOON_DAYS } from '@/constants';
+import { DEFAULT_PAYMENT_REMINDER_DAYS, PAYMENT_DUE_SOON_DAYS, parseSportKey } from '@/constants';
+import type { SportKey } from '@/constants';
 import { repositories } from '@/database';
 import {
   cancelRemindersFor,
@@ -33,6 +34,8 @@ export interface ActivityDraft {
   categoryId: ID | null;
   imageKey: string | null;
   location: string;
+  /** Deporte elegido. Solo aplica al módulo de ejercicio. */
+  sportKey: SportKey | null;
   status: ActivityStatus;
   weekdays: Weekday[];
   startTime: TimeOfDay | null;
@@ -66,6 +69,7 @@ export function createEmptyDraft(currency: string): ActivityDraft {
     categoryId: null,
     imageKey: null,
     location: '',
+    sportKey: null,
     status: 'active',
     weekdays: [],
     startTime: null,
@@ -92,6 +96,7 @@ export function activityToDraft(
     categoryId: activity.categoryId,
     imageKey: activity.imageKey,
     location: activity.location ?? '',
+    sportKey: parseSportKey(activity.sportKey),
     status: activity.status,
     weekdays: activity.weekdays,
     startTime: activity.startTime,
@@ -229,6 +234,7 @@ function draftToEntityFields(draft: ActivityDraft) {
     categoryId: draft.categoryId,
     imageKey: draft.imageKey,
     location: draft.location.trim() || null,
+    sportKey: draft.sportKey,
     status: draft.status,
     weekdays: draft.weekdays,
     startTime: draft.startTime,

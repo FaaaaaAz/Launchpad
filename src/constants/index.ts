@@ -26,6 +26,16 @@ export {
 } from './finance';
 export type { FinanceKindConfig } from './finance';
 
+export { MASCOT_NAME, PAD_LINES } from './mascot';
+
+export {
+  SPORT_CONFIG,
+  SPORT_ORDER,
+  getSportConfig,
+  parseSportKey,
+} from './sports';
+export type { SportConfig, SportKey } from './sports';
+
 export { logo, mascot } from './assets';
 export type { MascotKey } from './assets';
 

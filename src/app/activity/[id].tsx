@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Image, ScrollView, StyleSheet, View } from 'react-native';
 
 import {
@@ -17,16 +17,24 @@ import {
   BILLING_CYCLE_LABELS,
   PAYMENT_STATUS_META,
   getDomainConfig,
+  getSportConfig,
+  mascot,
+  parseSportKey,
 } from '@/constants';
 import { useActivities } from '@/features/activities/ActivitiesProvider';
 import { getPaymentStatus, listPayments } from '@/features/activities/activityService';
+import { ActivityCalendar } from '@/features/activities/components/ActivityCalendar';
+import { DayEventsSheet } from '@/features/activities/components/DayEventsSheet';
+import { PadCoach } from '@/features/activities/components/PadCoach';
 import { RegisterPaymentSheet } from '@/features/activities/components/RegisterPaymentSheet';
+import { statsForMonth } from '@/features/activities/activityEventService';
+import { useActivityEvents } from '@/features/activities/useActivityEvents';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { useCategories } from '@/hooks/useCategories';
 import { imageStorage } from '@/services/imageStorage';
 import { colors, radius, spacing } from '@/theme';
 import type { DateOnly, Payment } from '@/types';
-import { formatDateLong, formatTimeRange, formatWeekdays } from '@/utils/date';
+import { formatDateLong, formatTimeRange, formatWeekdays, monthOf, today } from '@/utils/date';
 import { formatCurrency, initials } from '@/utils/format';
 
 /** Cuántos pagos recientes se listan en el detalle. */
@@ -40,6 +48,14 @@ export default function ActivityDetailScreen() {
   const { categories } = useCategories(activity?.domain ?? 'exercise');
   const [payments, setPayments] = useState<Payment[]>([]);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  const calendar = useActivityEvents(activity?.id);
+  const [visibleMonth, setVisibleMonth] = useState(() => monthOf(today()));
+  const [selectedDay, setSelectedDay] = useState<DateOnly | null>(null);
+  const monthStats = useMemo(
+    () => statsForMonth(calendar.events, visibleMonth),
+    [calendar.events, visibleMonth],
+  );
 
   const loadPayments = useCallback(async () => {
     if (!activity) return;
@@ -82,11 +98,19 @@ export default function ActivityDetailScreen() {
   const hours = formatTimeRange(activity.startTime, activity.endTime);
   const hasBilling = activity.billingCycle !== 'none';
 
+  const sport = parseSportKey(activity.sportKey);
+  const sportConfig = sport ? getSportConfig(sport) : null;
+  const sportIllustration = sportConfig?.mascot ? mascot[sportConfig.mascot] : null;
+
   return (
     <Screen>
       <ScreenHeader
         title={activity.name}
-        subtitle={[category?.name, activity.subtitle].filter(Boolean).join(' · ') || config.title}
+        subtitle={
+          [sportConfig?.label, category?.name, activity.subtitle]
+            .filter(Boolean)
+            .join(' · ') || config.title
+        }
         showBack
         accentColor={config.color}
         actionIcon="create-outline"
@@ -100,6 +124,15 @@ export default function ActivityDetailScreen() {
         <View style={styles.hero}>
           {imageUri ? (
             <Image source={{ uri: imageUri }} style={styles.image} resizeMode="cover" />
+          ) : sportIllustration ? (
+            <View style={[styles.fallback, { backgroundColor: `${config.color}14` }]}>
+              <Image
+                source={sportIllustration}
+                style={styles.illustration}
+                resizeMode="contain"
+                accessible={false}
+              />
+            </View>
           ) : (
             <View style={[styles.fallback, { backgroundColor: `${config.color}1F` }]}>
               <Text variant="display" color={config.color}>
@@ -125,6 +158,30 @@ export default function ActivityDetailScreen() {
             />
           ) : null}
         </View>
+
+        {sport ? <PadCoach sport={sport} /> : null}
+
+        {sport ? (
+          <Card>
+            <SectionHeader
+              title="Calendario"
+              icon="calendar-outline"
+              subtitle={
+                monthStats.total === 0
+                  ? 'Toca un día para anotar'
+                  : `${monthStats.trainings} entrenos · ${monthStats.matches} ${sportConfig?.matchLabelPlural.toLowerCase() ?? 'eventos'} · ${monthStats.completed} cumplidos`
+              }
+            />
+
+            <ActivityCalendar
+              month={visibleMonth}
+              onChangeMonth={setVisibleMonth}
+              byDate={calendar.byDate}
+              onSelectDay={setSelectedDay}
+              matchColor={colors.info}
+            />
+          </Card>
+        ) : null}
 
         <Card>
           <SectionHeader title="Detalles" icon="information-circle-outline" />
@@ -207,6 +264,18 @@ export default function ActivityDetailScreen() {
         ) : null}
       </ScrollView>
 
+      <DayEventsSheet
+        date={selectedDay}
+        events={selectedDay ? (calendar.byDate.get(selectedDay) ?? []) : []}
+        sport={sport ?? 'other'}
+        onClose={() => setSelectedDay(null)}
+        onAdd={(kind, title) => {
+          if (selectedDay) void calendar.addEvent({ date: selectedDay, kind, title });
+        }}
+        onRemove={(event) => void calendar.removeEvent(event.id)}
+        onToggleCompleted={(event) => void calendar.toggleCompleted(event)}
+      />
+
       <RegisterPaymentSheet
         activity={activity}
         visible={isSheetOpen}
@@ -260,6 +329,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  illustration: {
+    width: '100%',
+    height: '94%',
   },
   badges: {
     flexDirection: 'row',

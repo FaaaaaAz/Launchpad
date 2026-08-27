@@ -10,7 +10,7 @@ import {
 
 import { TextField } from '@/components/form';
 import { Button, Screen, Text } from '@/components/ui';
-import { logo } from '@/constants';
+import { MASCOT_NAME, logo } from '@/constants';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { useSettings } from '@/providers/SettingsProvider';
 import { colors, radius, spacing } from '@/theme';
@@ -49,7 +49,7 @@ export default function OnboardingScreen() {
             </Text>
 
             <Text variant="body" tone="secondary">
-              Tu plataforma de lanzamiento.
+              Tu plataforma de lanzamiento. Con {MASCOT_NAME} de copiloto.
             </Text>
 
             <View style={styles.manifesto}>

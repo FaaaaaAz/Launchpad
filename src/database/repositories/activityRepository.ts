@@ -29,6 +29,7 @@ interface ActivityRow {
   category_id: string | null;
   image_key: string | null;
   location: string | null;
+  sport_key: string | null;
   status: string;
   weekdays: string;
   start_time: string | null;
@@ -71,6 +72,7 @@ function toDomain(row: ActivityRow): Activity {
     categoryId: row.category_id,
     imageKey: row.image_key,
     location: row.location,
+    sportKey: row.sport_key,
     status: asEnum(row.status, STATUSES, 'active'),
     weekdays: parseWeekdays(row.weekdays),
     startTime: row.start_time,
@@ -98,6 +100,7 @@ function toColumns(
     category_id: input.categoryId,
     image_key: input.imageKey,
     location: input.location,
+    sport_key: input.sportKey,
     status: input.status,
     weekdays: input.weekdays ? serializeWeekdays(input.weekdays) : undefined,
     start_time: input.startTime,
@@ -161,11 +164,11 @@ export const sqliteActivityRepository: ActivityRepository = {
 
     await db.runAsync(
       `INSERT INTO activities
-         (id, domain, name, subtitle, category_id, image_key, location, status,
+         (id, domain, name, subtitle, category_id, image_key, location, sport_key, status,
           weekdays, start_time, end_time, start_date, end_date, notes,
           billing_cycle, billing_amount, currency,
           last_payment_date, next_payment_date, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         activity.id,
         activity.domain,
@@ -174,6 +177,7 @@ export const sqliteActivityRepository: ActivityRepository = {
         activity.categoryId,
         activity.imageKey,
         activity.location,
+        activity.sportKey,
         activity.status,
         serializeWeekdays(activity.weekdays),
         activity.startTime,

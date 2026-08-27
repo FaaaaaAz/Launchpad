@@ -5,7 +5,7 @@ import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { ChipSelector, TextField } from '@/components/form';
 import type { ChipOption } from '@/components/form';
 import { Badge, Button, Card, ListRow, Screen, ScreenHeader, SectionHeader, Text } from '@/components/ui';
-import { AVAILABLE_CURRENCIES } from '@/constants';
+import { AVAILABLE_CURRENCIES, MASCOT_NAME } from '@/constants';
 import { clearUserData } from '@/database';
 import { useActivities } from '@/features/activities/ActivitiesProvider';
 import { useTasks } from '@/features/tasks/TasksProvider';
@@ -234,7 +234,7 @@ export default function SettingsScreen() {
           <ListRow title="Launchpad" subtitle="Versión 1.0.0" icon="rocket-outline" />
           <View style={styles.divider} />
           <ListRow
-            title="Saludo del zorro"
+            title={`Saludo de ${MASCOT_NAME}`}
             subtitle="Repite la animación de bienvenida"
             icon="paw-outline"
             iconColor={colors.accent}

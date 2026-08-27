@@ -43,7 +43,7 @@ export const DOMAIN_CONFIG: Record<ActivityDomain, DomainConfig> = {
     title: 'Ejercicio',
     tagline: 'Tus actividades físicas y membresías',
     icon: 'barbell',
-    mascot: 'gym',
+    mascot: 'sports',
     color: domainColors.exercise,
     itemLabel: 'actividad',
     itemLabelPlural: 'actividades',

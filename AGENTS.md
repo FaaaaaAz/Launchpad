@@ -10,6 +10,8 @@ Aplicación personal local (sin backend). Ver `README.md` para la arquitectura c
 
 - **Nunca SQL en una pantalla.** El flujo es `Pantalla → Provider → Service → Repository → SQLite`.
 - **Nunca un color, tamaño de fuente o espaciado literal.** Todo sale de `src/theme`.
+- **La mascota se llama PAD.** El nombre sale de `MASCOT_NAME`, nunca escrito a mano.
+  Cuando la app «habla», lo hace como PAD: una línea corta y con carácter, no un párrafo.
 - **La app es negra y amarilla.** El amarillo `#FDC305` está tomado del logo. Los colores
   funcionales (prioridad, pago, estado) NO se tocan: comunican significado, no identidad.
 - **Nunca escribas la ruta de una imagen en una pantalla.** Regístrala en

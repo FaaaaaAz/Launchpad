@@ -2,7 +2,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image, StyleSheet, View } from 'react-native';
 
 import { Badge, Card, Text } from '@/components/ui';
-import { ACTIVITY_STATUS_META, PAYMENT_STATUS_META, getDomainConfig } from '@/constants';
+import {
+  ACTIVITY_STATUS_META,
+  PAYMENT_STATUS_META,
+  getDomainConfig,
+  getSportConfig,
+  mascot,
+  parseSportKey,
+} from '@/constants';
 import { imageStorage } from '@/services/imageStorage';
 import { colors, spacing } from '@/theme';
 import type { Activity } from '@/types';
@@ -26,6 +33,12 @@ export interface ActivityCardProps {
 export function ActivityCard({ activity, onPress, categoryName }: ActivityCardProps) {
   const domain = getDomainConfig(activity.domain);
   const imageUri = imageStorage.resolve(activity.imageKey);
+
+  // Orden de preferencia para la portada: la foto que subió el usuario, la
+  // ilustración de PAD del deporte elegido y, si no hay nada, las iniciales.
+  const sport = parseSportKey(activity.sportKey);
+  const sportConfig = sport ? getSportConfig(sport) : null;
+  const sportIllustration = sportConfig?.mascot ? mascot[sportConfig.mascot] : null;
   const paymentStatus = getPaymentStatus(activity);
   const payment = PAYMENT_STATUS_META[paymentStatus];
   const status = ACTIVITY_STATUS_META[activity.status];
@@ -38,6 +51,15 @@ export function ActivityCard({ activity, onPress, categoryName }: ActivityCardPr
       <View style={styles.cover}>
         {imageUri ? (
           <Image source={{ uri: imageUri }} style={styles.image} resizeMode="cover" />
+        ) : sportIllustration ? (
+          <View style={[styles.fallback, { backgroundColor: `${domain.color}14` }]}>
+            <Image
+              source={sportIllustration}
+              style={styles.illustration}
+              resizeMode="contain"
+              accessible={false}
+            />
+          </View>
         ) : (
           <View style={[styles.fallback, { backgroundColor: `${domain.color}1F` }]}>
             <Text variant="display" color={domain.color}>
@@ -46,8 +68,9 @@ export function ActivityCard({ activity, onPress, categoryName }: ActivityCardPr
           </View>
         )}
 
-        {/* Vela oscura para que el badge se lea sobre cualquier foto. */}
-        <View style={styles.coverScrim} />
+        {/* Vela oscura solo sobre fotos: la ilustración de PAD ya tiene
+            contraste propio y oscurecerla la apagaría sin motivo. */}
+        {imageUri ? <View style={styles.coverScrim} /> : null}
 
         <View style={styles.coverBadges}>
           {activity.status !== 'active' ? (
@@ -69,8 +92,9 @@ export function ActivityCard({ activity, onPress, categoryName }: ActivityCardPr
               {activity.name}
             </Text>
             <Text variant="caption" tone="muted" numberOfLines={1}>
-              {[categoryName, activity.subtitle].filter(Boolean).join(' · ') ||
-                domain.title}
+              {[sportConfig?.label, categoryName, activity.subtitle]
+                .filter(Boolean)
+                .join(' · ') || domain.title}
             </Text>
           </View>
 
@@ -147,6 +171,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  illustration: {
+    width: '100%',
+    height: '92%',
   },
   coverScrim: {
     position: 'absolute',

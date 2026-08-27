@@ -176,6 +176,16 @@ Metro exige que `require()` reciba una cadena literal, así que las rutas no se
 pueden construir dinámicamente. Todas viven en `src/constants/assets.ts`, y las
 pantallas usan `logo` o `mascot.<clave>`.
 
+**El deporte se guarda como texto y se valida al leer.**
+`Activity.sportKey` no está restringido por la base. Agregar un deporte nuevo es
+añadir una entrada a `constants/sports.ts` y su imagen; no hace falta otra
+migración. `parseSportKey()` descarta lo que ya no exista.
+
+**Cada deporte tiene su propio vocabulario.**
+En fútbol se juegan partidos, en natación se compite y en boxeo se pelea. Ese
+texto vive en `SportConfig.matchLabel`, junto con la frase de PAD. Es lo que hace
+que la app se sienta hecha para tu deporte y no un formulario genérico.
+
 **El control mensual guarda el mes, no un booleano.**
 `FinanceEntry.lastSettledMonth` almacena `'2026-08'`. Comparándolo con el mes en
 curso, el control se reinicia solo al cambiar de mes: no hace falta ninguna tarea
@@ -198,6 +208,8 @@ detrás del engranaje del dashboard, que es la sección que menos se abre.
 Category ──┬─< Activity ──┬─< Payment
            │              └─< Reminder  (targetType: 'payment' | 'activity')
            └─< Task ────────< Reminder  (targetType: 'task')
+
+Activity ──< ActivityEvent     (kind: training | match)
 
 FinanceEntry                   (kind: income | expense | debt | saving)
 
@@ -252,10 +264,12 @@ ocurra, Expo Go es suficiente.
 - [x] Barra de pestañas flotante con burbuja deslizante
 - [x] Bienvenida animada con la mascota
 - [x] Alcancía: ingresos fijos, gastos fijos, deudas, ahorros y control mensual
+- [x] Deportes con ilustración propia de PAD y calendario de entrenamientos y competencias
 
 ## Qué sigue
 
 - Módulo de rutinas (el esquema ya existe, falta la UI)
+- Recordatorios automáticos de los días anotados en el calendario
 - Vista jerárquica del módulo académico (universidad → materia → tarea)
 - Estadísticas e historial de hábitos
 - Categorías creadas por el usuario

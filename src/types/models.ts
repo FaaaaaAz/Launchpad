@@ -43,6 +43,9 @@ export type ReminderRepeat = 'none' | 'daily' | 'weekly';
  */
 export type FinanceKind = 'income' | 'expense' | 'debt' | 'saving';
 
+/** Qué se anota en un día del calendario de una actividad. */
+export type ActivityEventKind = 'training' | 'match';
+
 /* -------------------------------------------------------------------------- */
 /* Entidades                                                                  */
 /* -------------------------------------------------------------------------- */
@@ -82,6 +85,13 @@ export interface Activity extends Entity {
    */
   imageKey: string | null;
   location: string | null;
+  /**
+   * Deporte de la actividad, cuando aplica (ver `constants/sports.ts`).
+   *
+   * Se guarda como texto libre y se valida al leer: así agregar un deporte
+   * nuevo no obliga a migrar la base.
+   */
+  sportKey: string | null;
   status: ActivityStatus;
   /** Días en que ocurre la actividad. */
   weekdays: Weekday[];
@@ -103,6 +113,21 @@ export interface Activity extends Entity {
   currency: string;
   lastPaymentDate: DateOnly | null;
   nextPaymentDate: DateOnly | null;
+}
+
+/**
+ * Un día anotado en el calendario de una actividad: un entrenamiento o una
+ * competencia.
+ */
+export interface ActivityEvent extends Entity {
+  activityId: ID;
+  date: DateOnly;
+  kind: ActivityEventKind;
+  /** Detalle corto: 'vs. Rojos', 'Test de 5k'. */
+  title: string | null;
+  notes: string | null;
+  /** Si ya se cumplió. Permite ver la constancia del mes de un vistazo. */
+  completed: boolean;
 }
 
 /** Un pago concreto realizado sobre una actividad. */

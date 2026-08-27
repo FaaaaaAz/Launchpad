@@ -29,15 +29,27 @@ export const logo: ImageSourcePropType = require('../../assets/images/logo.png')
 export const mascot = {
   /** Bienvenida tras completar el onboarding. */
   welcome: require('../../assets/images/mascot/welcome.png') as ImageSourcePropType,
-  /** Entrenando con mancuernas. Módulo de ejercicio. */
+  /** Rodeado de todos los deportes. Módulo de ejercicio. */
+  sports: require('../../assets/images/mascot/sports.png') as ImageSourcePropType,
+  /** Entrenando con mancuernas. */
   gym: require('../../assets/images/mascot/gym.png') as ImageSourcePropType,
+  /** Con guantes de boxeo. */
+  box: require('../../assets/images/mascot/box.png') as ImageSourcePropType,
+  /** Corriendo. */
+  running: require('../../assets/images/mascot/running.png') as ImageSourcePropType,
+  /** Nadando. */
+  swim: require('../../assets/images/mascot/swim.png') as ImageSourcePropType,
+  /** Con raqueta. */
+  tennis: require('../../assets/images/mascot/tennis.png') as ImageSourcePropType,
+  /** Bailando. */
+  dance: require('../../assets/images/mascot/dance.png') as ImageSourcePropType,
   /** Estudiando. Módulo académico. */
   study: require('../../assets/images/mascot/study.png') as ImageSourcePropType,
   /** Tiempo libre. Módulo de hobbies. */
   hobby: require('../../assets/images/mascot/hobby.png') as ImageSourcePropType,
   /** Alcancía, calculadora y gráficos. Módulo de finanzas. */
   finance: require('../../assets/images/mascot/finance.png') as ImageSourcePropType,
-  /** Con balón. Disponible para actividades deportivas. */
+  /** Con balón de fútbol. */
   football: require('../../assets/images/mascot/football.png') as ImageSourcePropType,
 };
 

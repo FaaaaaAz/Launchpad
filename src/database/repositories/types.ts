@@ -1,6 +1,7 @@
 import type {
   Activity,
   ActivityDomain,
+  ActivityEvent,
   ActivityStatus,
   Category,
   CreateInput,
@@ -59,6 +60,16 @@ export interface ActivityRepository {
   remove(id: ID): Promise<void>;
 }
 
+export interface ActivityEventRepository {
+  listByActivity(activityId: ID): Promise<ActivityEvent[]>;
+  /** Próximo evento de cada actividad, indexado por actividad. */
+  listNextByActivity(): Promise<Map<ID, ActivityEvent>>;
+  findById(id: ID): Promise<ActivityEvent | null>;
+  create(input: CreateInput<ActivityEvent>): Promise<ActivityEvent>;
+  update(id: ID, patch: UpdateInput<ActivityEvent>): Promise<ActivityEvent>;
+  remove(id: ID): Promise<void>;
+}
+
 export interface CategoryRepository {
   /** `domain: null` devuelve las categorías de tareas. */
   list(domain?: ActivityDomain | null): Promise<Category[]>;
@@ -109,6 +120,7 @@ export interface SettingsRepository {
 export interface RepositoryRegistry {
   tasks: TaskRepository;
   activities: ActivityRepository;
+  activityEvents: ActivityEventRepository;
   categories: CategoryRepository;
   finance: FinanceRepository;
   payments: PaymentRepository;

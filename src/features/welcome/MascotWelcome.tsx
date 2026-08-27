@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 
 import { Text } from '@/components/ui';
-import { mascot } from '@/constants';
+import { MASCOT_NAME, PAD_LINES, mascot } from '@/constants';
 import { colors, motion, spacing } from '@/theme';
 
 export interface MascotWelcomeProps {
@@ -106,7 +106,7 @@ export function MascotWelcome({ userName, onDismiss }: MascotWelcomeProps) {
     });
   }, [mascotX, scrim, textOpacity, onDismiss, width]);
 
-  const greeting = userName ? `Hola, ${userName}` : 'Hola';
+  const greeting = userName ? `Hola, ${userName}` : `Hola, soy ${MASCOT_NAME}`;
 
   return (
     <Pressable
@@ -143,8 +143,7 @@ export function MascotWelcome({ userName, onDismiss }: MascotWelcomeProps) {
         </Text>
 
         <Text variant="body" tone="secondary" style={styles.subtitle}>
-          Soy tu copiloto. Desde aquí llevamos tus tareas, tus entrenamientos y
-          todo lo que quieras mantener bajo control.
+          {PAD_LINES.welcome}
         </Text>
 
         <View style={styles.hint}>

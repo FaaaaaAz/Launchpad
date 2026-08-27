@@ -13,6 +13,8 @@ export type {
 export type {
   Activity,
   ActivityDomain,
+  ActivityEvent,
+  ActivityEventKind,
   ActivityStatus,
   BillingCycle,
   Category,

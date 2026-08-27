@@ -31,6 +31,9 @@ import type {
 } from '@/types';
 import { currencySymbol } from '@/utils/format';
 
+import { PadCoach } from './PadCoach';
+import { SportPicker } from './SportPicker';
+
 import type { ActivityDraft } from '../activityService';
 
 export interface ActivityFormProps {
@@ -93,13 +96,31 @@ export function ActivityForm({
     <View style={styles.container}>
       {error ? <InlineError message={error} /> : null}
 
+      {/* El deporte va primero: define la ilustración de la card, el
+          vocabulario del calendario y la frase con que PAD te recibe. */}
+      {domain === 'exercise' ? (
+        <FormSection title="¿Qué vas a hacer?">
+          <SportPicker
+            value={draft.sportKey}
+            onChange={(value) => update('sportKey', value)}
+            hint="PAD te acompaña con la ilustración y las frases de ese deporte."
+          />
+
+          {draft.sportKey ? <PadCoach sport={draft.sportKey} /> : null}
+        </FormSection>
+      ) : null}
+
       <FormSection>
         <ImageField
           label="Imagen"
           value={draft.imageKey}
           onChange={(value) => update('imageKey', value)}
           accentColor={config.color}
-          hint="Opcional. Ayuda a reconocer la actividad de un vistazo."
+          hint={
+            draft.sportKey
+              ? 'Opcional. Si no pones foto, se usa la ilustración de PAD.'
+              : 'Opcional. Ayuda a reconocer la actividad de un vistazo.'
+          }
         />
 
         <TextField

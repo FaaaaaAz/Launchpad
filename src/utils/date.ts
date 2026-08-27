@@ -240,6 +240,46 @@ export function monthOf(date: DateOnly): string {
   return date.slice(0, 7);
 }
 
+/** Desplaza un mes 'YYYY-MM' la cantidad de meses indicada. */
+export function shiftMonth(month: string, delta: number): string {
+  const [year, index] = month.split('-').map(Number);
+  const date = new Date(year ?? 1970, (index ?? 1) - 1 + delta, 1);
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}`;
+}
+
+/** 'agosto 2026' — encabezado del calendario. */
+export function formatMonthLabel(month: string): string {
+  const [year, index] = month.split('-').map(Number);
+  return `${MONTHS[(index ?? 1) - 1] ?? ''} ${year ?? ''}`;
+}
+
+/**
+ * Cuadrícula del mes lista para pintar, empezando en lunes.
+ *
+ * Las posiciones anteriores al día 1 y posteriores al último día vienen como
+ * `null`, de modo que la cuadrícula siempre tiene semanas completas y el
+ * componente no necesita calcular desplazamientos.
+ */
+export function buildMonthGrid(month: string): (DateOnly | null)[] {
+  const [year, index] = month.split('-').map(Number);
+  const safeYear = year ?? 1970;
+  const safeIndex = (index ?? 1) - 1;
+
+  const firstDay = new Date(safeYear, safeIndex, 1);
+  const daysInMonth = new Date(safeYear, safeIndex + 1, 0).getDate();
+
+  // getDay() devuelve 0 para domingo; la cuadrícula empieza en lunes.
+  const leading = (firstDay.getDay() + 6) % 7;
+
+  const cells: (DateOnly | null)[] = Array.from({ length: leading }, () => null);
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    cells.push(`${safeYear}-${pad(safeIndex + 1)}-${pad(day)}`);
+  }
+  while (cells.length % 7 !== 0) cells.push(null);
+
+  return cells;
+}
+
 /** Franja del día. La UI decide qué ícono corresponde a cada una. */
 export type DayPeriod = 'night' | 'morning' | 'afternoon' | 'evening';
 

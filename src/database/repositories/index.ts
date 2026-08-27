@@ -1,3 +1,4 @@
+import { sqliteActivityEventRepository } from './activityEventRepository';
 import { sqliteActivityRepository } from './activityRepository';
 import { sqliteCategoryRepository } from './categoryRepository';
 import { sqliteFinanceRepository } from './financeRepository';
@@ -18,6 +19,7 @@ import type { RepositoryRegistry } from './types';
 export const repositories: RepositoryRegistry = {
   tasks: sqliteTaskRepository,
   activities: sqliteActivityRepository,
+  activityEvents: sqliteActivityEventRepository,
   categories: sqliteCategoryRepository,
   finance: sqliteFinanceRepository,
   payments: sqlitePaymentRepository,
@@ -26,6 +28,7 @@ export const repositories: RepositoryRegistry = {
 };
 
 export type {
+  ActivityEventRepository,
   ActivityFilter,
   ActivityRepository,
   CategoryRepository,
