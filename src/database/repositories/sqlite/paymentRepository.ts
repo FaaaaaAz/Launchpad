@@ -2,8 +2,8 @@ import type { CreateInput, ID, Payment } from '@/types';
 import { nowISO } from '@/utils/date';
 import { createId } from '@/utils/id';
 
-import { getDatabase } from '../database';
-import type { PaymentRepository } from './types';
+import { getDatabase } from '../../database';
+import type { PaymentRepository } from '../types';
 
 interface PaymentRow {
   id: string;

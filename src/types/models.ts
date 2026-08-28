@@ -226,3 +226,23 @@ export interface RoutineItem extends Entity {
   position: number;
   notes: string | null;
 }
+
+/**
+ * Perfil del usuario autenticado.
+ *
+ * Su `id` ES el UUID de `auth.users`: no se genera uno propio. Guarda solo lo
+ * que Supabase Auth no administra —cómo quiere que le llamemos y su avatar—;
+ * el correo, el proveedor y la fecha de alta se leen de la sesión, no de aquí,
+ * para no tener dos fuentes de verdad que se desincronicen.
+ *
+ * A diferencia del resto de entidades, el perfil no existe en la base local:
+ * sin cuenta no hay perfil. Por eso su repositorio queda fuera de
+ * `RepositoryRegistry`, que describe lo que sí puede vivir en los dos sitios.
+ */
+export interface Profile extends Entity {
+  firstName: string | null;
+  lastName: string | null;
+  /** Nombre con el que saluda PAD. Puede venir de Google o escribirlo el usuario. */
+  displayName: string | null;
+  avatarUrl: string | null;
+}

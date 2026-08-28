@@ -10,9 +10,9 @@ import { nowISO, today } from '@/utils/date';
 import { AppError } from '@/utils/errors';
 import { createId } from '@/utils/id';
 
-import { getDatabase } from '../database';
-import { asEnum, boolToInt, buildAssignments, intToBool, type SqlValue } from '../sql';
-import type { ActivityEventRepository } from './types';
+import { getDatabase } from '../../database';
+import { asEnum, boolToInt, buildAssignments, intToBool, type SqlValue } from '../../sql';
+import type { ActivityEventRepository } from '../types';
 
 interface ActivityEventRow {
   id: string;

@@ -2,7 +2,6 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import type { ReactNode } from 'react';
 
 import { getDatabase } from '@/database';
-import { refreshReminderStatuses } from '@/features/notifications/reminderService';
 import { prepareNotifications } from '@/services/notifications';
 import { toUserMessage } from '@/utils/errors';
 
@@ -41,9 +40,14 @@ export function DatabaseProvider({ children }: { children: ReactNode }) {
 
     // Las notificaciones son secundarias: si algo falla aquí, la app debe
     // seguir funcionando sin recordatorios en vez de no abrir.
+    //
+    // Aquí solo se prepara el canal, que es cosa del dispositivo y no necesita
+    // cuenta. La reconciliación de los recordatorios ya pasados vive en
+    // `features/notifications/ReminderSync`, dentro de la sesión: desde que
+    // están en Supabase, consultarlos antes de saber quién eres devuelve un
+    // error de permisos y no reconcilia nada.
     try {
       await prepareNotifications();
-      await refreshReminderStatuses();
     } catch (cause) {
       console.warn('[Launchpad] No se pudieron preparar las notificaciones:', cause);
     }

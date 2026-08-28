@@ -26,7 +26,7 @@ export {
 } from './finance';
 export type { FinanceKindConfig } from './finance';
 
-export { MASCOT_NAME, PAD_LINES } from './mascot';
+export { MASCOT_NAME, PAD_AUTH_LINES, PAD_LINES } from './mascot';
 
 export {
   SPORT_CONFIG,
@@ -41,6 +41,7 @@ export type { MascotKey } from './assets';
 
 export {
   AVAILABLE_CURRENCIES,
+  NO_LOCAL_IMPORT,
   DEFAULT_CURRENCY,
   SETTING_KEYS,
 } from './settings';

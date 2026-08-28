@@ -6,32 +6,48 @@ import { repositories } from '@/database';
 
 interface SettingsContextValue {
   isLoading: boolean;
-  /** Si ya pasó por la pantalla de bienvenida. */
-  onboardingCompleted: boolean;
+
   /**
-   * Si queda por mostrar la bienvenida de la mascota.
-   * Se persiste en vez de guardarse en memoria para que cerrar la app a
-   * mitad de la animación no se salte la bienvenida para siempre.
+   * UUID del usuario que ya vio el saludo animado de PAD, o cadena vacía si
+   * está pendiente. Se persiste en vez de guardarse en memoria para que cerrar
+   * la app a mitad de la animación no se salte la bienvenida para siempre.
    */
-  welcomePending: boolean;
-  userName: string;
-  currency: string;
-  completeOnboarding: (userName: string) => Promise<void>;
-  dismissWelcome: () => Promise<void>;
-  /** Vuelve a armar la bienvenida sin repetir el onboarding. */
+  welcomeSeenFor: string;
+  markWelcomeSeen: (userId: string) => Promise<void>;
+  /** Vuelve a armar el saludo de PAD. Lo usa Configuración. */
   replayWelcome: () => Promise<void>;
+
+  /** UUID del usuario al que ya se le subieron los datos locales, o ''. */
+  localImportDoneFor: string;
+  markLocalImportDone: (value: string) => Promise<void>;
+
+  /**
+   * Copia local del nombre del perfil.
+   *
+   * La fuente de verdad es `profiles.display_name` en Supabase; esto es una
+   * caché para que el dashboard salude sin esperar a la red. `AuthProvider`
+   * carga el perfil y `SettingsSync` lo vuelca aquí.
+   */
+  userName: string;
   setUserName: (value: string) => Promise<void>;
+
+  currency: string;
   setCurrency: (value: string) => Promise<void>;
-  resetOnboarding: () => Promise<void>;
 }
 
 const SettingsContext = createContext<SettingsContextValue | null>(null);
 
 /**
- * Preferencias locales.
+ * Preferencias del dispositivo.
  *
  * Se cargan de una vez al arrancar y se mantienen en memoria: son cuatro
  * valores y consultarlos en cada render sería trabajo inútil.
+ *
+ * Todo lo que guarda pertenece a este teléfono, no a la cuenta. Es la razón de
+ * que siga apoyándose en SQLite mientras el resto de la app se mudó a
+ * Supabase: subir «si ya viste la animación de PAD» obligaría a decidir qué
+ * pasa cuando dos dispositivos no coinciden, y no hay nada que ganar con esa
+ * respuesta.
  */
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -64,27 +80,19 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const value = useMemo<SettingsContextValue>(
     () => ({
       isLoading,
-      onboardingCompleted: values[SETTING_KEYS.onboardingCompleted] === 'true',
-      welcomePending: values[SETTING_KEYS.welcomePending] === 'true',
+
+      welcomeSeenFor: values[SETTING_KEYS.welcomeSeenFor] ?? '',
+      markWelcomeSeen: (userId: string) => write(SETTING_KEYS.welcomeSeenFor, userId),
+      replayWelcome: () => write(SETTING_KEYS.welcomeSeenFor, ''),
+
+      localImportDoneFor: values[SETTING_KEYS.localImportDoneFor] ?? '',
+      markLocalImportDone: (value: string) => write(SETTING_KEYS.localImportDoneFor, value),
+
       userName: values[SETTING_KEYS.userName] ?? '',
-      currency: values[SETTING_KEYS.currency] ?? DEFAULT_CURRENCY,
-
-      completeOnboarding: async (userName: string) => {
-        const trimmed = userName.trim();
-        if (trimmed) await write(SETTING_KEYS.userName, trimmed);
-        // La bienvenida se marca ANTES de dar por completado el onboarding:
-        // así, cuando el router cambie a la app, la mascota ya está armada y
-        // no se pierde el primer fotograma de su animación.
-        await write(SETTING_KEYS.welcomePending, 'true');
-        await write(SETTING_KEYS.onboardingCompleted, 'true');
-      },
-
-      dismissWelcome: () => write(SETTING_KEYS.welcomePending, 'false'),
-      replayWelcome: () => write(SETTING_KEYS.welcomePending, 'true'),
-
       setUserName: (name: string) => write(SETTING_KEYS.userName, name.trim()),
+
+      currency: values[SETTING_KEYS.currency] ?? DEFAULT_CURRENCY,
       setCurrency: (currency: string) => write(SETTING_KEYS.currency, currency),
-      resetOnboarding: () => write(SETTING_KEYS.onboardingCompleted, 'false'),
     }),
     [isLoading, values, write],
   );

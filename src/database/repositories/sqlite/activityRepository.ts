@@ -11,15 +11,15 @@ import { nowISO } from '@/utils/date';
 import { AppError } from '@/utils/errors';
 import { createId } from '@/utils/id';
 
-import { getDatabase } from '../database';
+import { getDatabase } from '../../database';
 import {
   asEnum,
   buildAssignments,
   parseWeekdays,
   serializeWeekdays,
   type SqlValue,
-} from '../sql';
-import type { ActivityFilter, ActivityRepository } from './types';
+} from '../../sql';
+import type { ActivityFilter, ActivityRepository } from '../types';
 
 interface ActivityRow {
   id: string;

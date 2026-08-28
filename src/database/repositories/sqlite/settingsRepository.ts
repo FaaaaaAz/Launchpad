@@ -1,7 +1,7 @@
 import { nowISO } from '@/utils/date';
 
-import { getDatabase } from '../database';
-import type { SettingsRepository } from './types';
+import { getDatabase } from '../../database';
+import type { SettingsRepository } from '../types';
 
 interface SettingRow {
   key: string;

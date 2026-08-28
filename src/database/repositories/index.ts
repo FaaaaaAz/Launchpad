@@ -1,31 +1,47 @@
-import { sqliteActivityEventRepository } from './activityEventRepository';
-import { sqliteActivityRepository } from './activityRepository';
-import { sqliteCategoryRepository } from './categoryRepository';
-import { sqliteFinanceRepository } from './financeRepository';
-import { sqlitePaymentRepository } from './paymentRepository';
-import { sqliteReminderRepository } from './reminderRepository';
-import { sqliteSettingsRepository } from './settingsRepository';
-import { sqliteTaskRepository } from './taskRepository';
+import { sqliteRepositories } from './sqlite';
+import { supabaseRepositories } from './supabase';
 import type { RepositoryRegistry } from './types';
 
 /**
- * Punto único de conexión entre la lógica de negocio y la persistencia.
+ * Punto unico de conexion entre la logica de negocio y la persistencia.
  *
- * Hoy todo apunta a SQLite. El día que entre Firebase, esta constante es el
- * único archivo que cambia: se sustituye una implementación por otra (o se
- * envuelve en una que escriba en ambos para sincronizar), y ni los servicios
- * ni las pantallas se enteran.
+ * Este archivo es exactamente lo que el README anticipaba: el dia que entrara
+ * un backend, se escribiria una implementacion que cumpliera los mismos
+ * contratos y se cambiaria una sola linea. Ese dia llego, y la promesa se
+ * cumplio: ni un servicio ni una pantalla se enteraron del cambio.
+ *
+ * El reparto de hoy:
+ *
+ *   Datos del usuario  ->  Supabase (PostgreSQL + RLS)
+ *   Preferencias       ->  SQLite local
+ *
+ * `settings` se queda en el telefono porque lo que guarda pertenece al
+ * dispositivo, no a la cuenta: si ya viste la bienvenida de PAD, la moneda que
+ * elegiste. Subirlo obligaria a resolver conflictos entre dispositivos para no
+ * ganar nada.
+ *
+ * Consecuencia que conviene tener presente: Supabase es ahora la fuente de
+ * verdad, asi que la app necesita conexion para leer y escribir. No hay cache
+ * offline todavia --era la opcion mas simple y segura para esta etapa-- pero
+ * la arquitectura la admite sin tocar pantallas: un repositorio que consulte
+ * primero SQLite y luego Supabase se enchufa aqui mismo.
  */
 export const repositories: RepositoryRegistry = {
-  tasks: sqliteTaskRepository,
-  activities: sqliteActivityRepository,
-  activityEvents: sqliteActivityEventRepository,
-  categories: sqliteCategoryRepository,
-  finance: sqliteFinanceRepository,
-  payments: sqlitePaymentRepository,
-  reminders: sqliteReminderRepository,
-  settings: sqliteSettingsRepository,
+  ...supabaseRepositories,
+  settings: sqliteRepositories.settings,
 };
+
+/**
+ * Repositorios locales, accesibles aparte.
+ *
+ * Los usa la importacion de datos previos (`features/auth/localImportService`),
+ * que necesita leer de SQLite y escribir en Supabase a la vez. Ninguna
+ * pantalla debe importarlos: el resto de la app habla con `repositories`.
+ */
+export { sqliteRepositories } from './sqlite';
+
+export { supabaseMaintenanceRepository, supabaseProfileRepository } from './supabase';
+export type { ProfilePatch } from './supabase';
 
 export type {
   ActivityEventRepository,

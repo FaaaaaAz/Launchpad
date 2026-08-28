@@ -3,9 +3,9 @@ import { nowISO } from '@/utils/date';
 import { AppError } from '@/utils/errors';
 import { createId } from '@/utils/id';
 
-import { getDatabase } from '../database';
-import { asEnum, buildAssignments, type SqlValue } from '../sql';
-import type { TaskFilter, TaskRepository } from './types';
+import { getDatabase } from '../../database';
+import { asEnum, buildAssignments, type SqlValue } from '../../sql';
+import type { TaskFilter, TaskRepository } from '../types';
 
 interface TaskRow {
   id: string;

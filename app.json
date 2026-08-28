@@ -38,7 +38,8 @@
         {
           "photosPermission": "Launchpad usa tus fotos para ilustrar tus actividades."
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

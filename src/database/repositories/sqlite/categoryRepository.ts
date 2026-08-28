@@ -3,9 +3,9 @@ import { nowISO } from '@/utils/date';
 import { AppError } from '@/utils/errors';
 import { createId } from '@/utils/id';
 
-import { getDatabase } from '../database';
-import { asEnum, boolToInt, intToBool, type SqlValue } from '../sql';
-import type { CategoryRepository } from './types';
+import { getDatabase } from '../../database';
+import { asEnum, boolToInt, intToBool, type SqlValue } from '../../sql';
+import type { CategoryRepository } from '../types';
 
 interface CategoryRow {
   id: string;

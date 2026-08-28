@@ -48,8 +48,15 @@ yarn-error.*
 *.log
 .tmp/
 
-# variables de entorno (cuando existan)
+# variables de entorno: se ignora todo .env EXCEPTO la plantilla de ejemplo.
+# Las claves de Supabase viven ahi y no entran nunca al repositorio.
 .env
+.env.*
+!.env.example
 
 # cobertura de pruebas
 coverage/
+
+# Supabase CLI (las migraciones SI se versionan; esto es estado local)
+supabase/.temp/
+supabase/.branches/

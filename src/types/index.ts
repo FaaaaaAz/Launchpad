@@ -21,6 +21,7 @@ export type {
   FinanceEntry,
   FinanceKind,
   Payment,
+  Profile,
   PaymentStatus,
   Reminder,
   ReminderRepeat,

@@ -52,9 +52,15 @@ export async function closeDatabase(): Promise<void> {
 
 /**
  * Borra todos los datos del usuario conservando el esquema y las categorías
- * del sistema. Lo usa la opción "Borrar todos los datos" de Configuración.
+ * del sistema.
+ *
+ * Desde que Supabase es la fuente de verdad, esto YA NO es lo que ejecuta
+ * "Borrar todos los datos" de Configuración —eso borra en la nube, con
+ * `delete_my_data()`—. Lo que queda aquí es la limpieza del residuo local: la
+ * usa la importación de datos previos para vaciar el teléfono una vez que su
+ * contenido ya está a salvo en la cuenta.
  */
-export async function clearUserData(): Promise<void> {
+export async function clearLocalData(): Promise<void> {
   const db = await getDatabase();
   await db.withExclusiveTransactionAsync(async (txn) => {
     await txn.execAsync(`

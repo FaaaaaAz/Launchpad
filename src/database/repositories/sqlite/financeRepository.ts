@@ -3,9 +3,9 @@ import { nowISO } from '@/utils/date';
 import { AppError } from '@/utils/errors';
 import { createId } from '@/utils/id';
 
-import { getDatabase } from '../database';
-import { asEnum, boolToInt, buildAssignments, intToBool, type SqlValue } from '../sql';
-import type { FinanceFilter, FinanceRepository } from './types';
+import { getDatabase } from '../../database';
+import { asEnum, boolToInt, buildAssignments, intToBool, type SqlValue } from '../../sql';
+import type { FinanceFilter, FinanceRepository } from '../types';
 
 interface FinanceRow {
   id: string;

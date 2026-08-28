@@ -2,17 +2,17 @@ import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 
-import { ChipSelector, TextField } from '@/components/form';
+import { ChipSelector } from '@/components/form';
 import type { ChipOption } from '@/components/form';
 import { Badge, Button, Card, ListRow, Screen, ScreenHeader, SectionHeader, Text } from '@/components/ui';
 import { AVAILABLE_CURRENCIES, MASCOT_NAME } from '@/constants';
-import { clearUserData } from '@/database';
+import { deleteAllUserData } from '@/features/account/accountService';
 import { useActivities } from '@/features/activities/ActivitiesProvider';
+import { useAuth } from '@/features/auth/AuthProvider';
 import { useTasks } from '@/features/tasks/TasksProvider';
 import { useAsyncAction } from '@/hooks/useAsyncAction';
 import { useSettings } from '@/providers/SettingsProvider';
 import {
-  cancelAll,
   ensurePermission,
   getPermissionState,
   getScheduledCount,
@@ -36,12 +36,11 @@ const PERMISSION_LABELS: Record<PermissionState, { label: string; color: string 
 };
 
 export default function SettingsScreen() {
-  const { userName, setUserName, currency, setCurrency, resetOnboarding, replayWelcome } =
-    useSettings();
+  const { currency, setCurrency, replayWelcome } = useSettings();
+  const { user, profile } = useAuth();
   const { tasks, refresh: refreshTasks } = useTasks();
   const { activities, refresh: refreshActivities } = useActivities();
 
-  const [name, setName] = useState(userName);
   const [permission, setPermission] = useState<PermissionState>('undetermined');
   const [scheduledCount, setScheduledCount] = useState(0);
 
@@ -53,11 +52,6 @@ export default function SettingsScreen() {
   useEffect(() => {
     void refreshNotificationState();
   }, [refreshNotificationState]);
-
-  const saveName = useAsyncAction(async () => {
-    await setUserName(name);
-    Alert.alert('Listo', 'Tu nombre se guardó.');
-  });
 
   /**
    * Notificación de prueba: es la forma más directa de comprobar en el
@@ -88,40 +82,30 @@ export default function SettingsScreen() {
     );
   });
 
+  const clearData = useAsyncAction(async () => {
+    await deleteAllUserData();
+    await Promise.all([refreshTasks(), refreshActivities()]);
+    await refreshNotificationState();
+    Alert.alert('Datos borrados', 'Tu cuenta quedó como recién creada.');
+  });
+
   const confirmClearData = () => {
     Alert.alert(
       'Borrar todos los datos',
-      'Se eliminarán tus tareas, actividades, pagos y recordatorios. Esta acción no se puede deshacer.',
+      'Se eliminarán tus tareas, actividades, pagos, recordatorios y tu alcancía, en este teléfono y en tu cuenta. Esta acción no se puede deshacer.',
       [
         { text: 'Cancelar', style: 'cancel' },
         {
           text: 'Borrar todo',
           style: 'destructive',
-          onPress: () => {
-            void (async () => {
-              // Primero se cancelan las notificaciones del sistema: si se
-              // borraran solo las filas, seguirían sonando avisos de tareas
-              // y pagos que ya no existen.
-              await cancelAll();
-              await clearUserData();
-              await Promise.all([refreshTasks(), refreshActivities()]);
-              await refreshNotificationState();
-              Alert.alert('Datos borrados', 'Launchpad quedó como recién instalado.');
-            })();
-          },
+          onPress: () => void clearData.run(),
         },
       ],
     );
   };
 
-  const confirmResetOnboarding = () => {
-    Alert.alert('Ver la bienvenida otra vez', 'Volverás a la pantalla inicial.', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Ver de nuevo', onPress: () => void resetOnboarding() },
-    ]);
-  };
-
   const permissionMeta = PERMISSION_LABELS[permission];
+  const displayName = profile?.displayName?.trim() ?? '';
 
   return (
     <Screen>
@@ -129,24 +113,20 @@ export default function SettingsScreen() {
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Card>
-          <SectionHeader title="Perfil" icon="person-outline" />
+          <SectionHeader title="Cuenta" icon="person-circle-outline" />
 
-          <TextField
-            label="Tu nombre"
-            value={name}
-            onChangeText={setName}
-            placeholder="¿Cómo quieres que te salude?"
-            maxLength={40}
-            autoCapitalize="words"
-          />
-
-          <Button
-            label="Guardar"
-            onPress={() => void saveName.run()}
-            loading={saveName.isRunning}
-            disabled={name.trim() === userName}
-            size="small"
-            style={styles.inlineAction}
+          {/*
+            El nombre ya no se edita aquí: vive en el perfil, junto al correo y
+            al método de acceso. Tenerlo en dos sitios haría que uno de los dos
+            acabara mostrando algo viejo.
+          */}
+          <ListRow
+            title={displayName || 'Mi cuenta'}
+            subtitle={user?.email ?? 'Gestiona tu perfil y tu acceso'}
+            icon="person-outline"
+            iconColor={colors.accent}
+            onPress={() => router.push('/account')}
+            showChevron
           />
         </Card>
 
@@ -162,6 +142,10 @@ export default function SettingsScreen() {
             value={currency}
             onChange={(value) => void setCurrency(value ?? currency)}
           />
+
+          <Text variant="caption" tone="muted" style={styles.note}>
+            La moneda es una preferencia de este teléfono, no de tu cuenta.
+          </Text>
         </Card>
 
         <Card>
@@ -214,25 +198,34 @@ export default function SettingsScreen() {
           />
 
           <Text variant="caption" tone="muted" style={styles.note}>
-            Todo se guarda solo en este teléfono, en una base de datos SQLite local. No hay
-            servidor ni cuenta: si borras la app, se borran los datos.
+            Todo se guarda en tu cuenta de Launchpad, no en este teléfono. Si borras la app y la
+            vuelves a instalar, tus datos regresan al iniciar sesión.
           </Text>
 
           <Button
             label="Borrar todos los datos"
             onPress={confirmClearData}
+            loading={clearData.isRunning}
             variant="danger"
             icon="trash-outline"
             fullWidth
             style={styles.inlineAction}
           />
+
+          {clearData.error ? (
+            <Text variant="caption" tone="danger" style={styles.note}>
+              {clearData.error}
+            </Text>
+          ) : null}
         </Card>
 
         <Card>
           <SectionHeader title="Acerca de" icon="information-circle-outline" />
 
           <ListRow title="Launchpad" subtitle="Versión 1.0.0" icon="rocket-outline" />
+
           <View style={styles.divider} />
+
           <ListRow
             title={`Saludo de ${MASCOT_NAME}`}
             subtitle="Repite la animación de bienvenida"
@@ -244,24 +237,9 @@ export default function SettingsScreen() {
             }}
             showChevron
           />
-
-          <View style={styles.divider} />
-
-          <ListRow
-            title="Ver la bienvenida otra vez"
-            subtitle="Vuelve a la pantalla inicial de la app"
-            icon="refresh-outline"
-            onPress={confirmResetOnboarding}
-            showChevron
-          />
         </Card>
 
-        <Button
-          label="Volver"
-          onPress={() => router.back()}
-          variant="ghost"
-          fullWidth
-        />
+        <Button label="Volver" onPress={() => router.back()} variant="ghost" fullWidth />
       </ScrollView>
     </Screen>
   );
