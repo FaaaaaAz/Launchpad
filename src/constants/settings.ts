@@ -7,12 +7,11 @@
  * moneda elegida, si ya viste el saludo de PAD, si los datos que había en este
  * teléfono ya se subieron. Los datos del usuario viven en Supabase.
  *
- * El nombre del usuario es un caso intermedio: la fuente de verdad es
- * `profiles.display_name`, y aquí se guarda una copia para que el dashboard
- * pueda saludar en el primer fotograma, sin esperar a la red.
+ * El nombre del usuario NO está aquí. Lo estuvo, como copia local para saludar
+ * sin esperar a la red, y provocó que el dashboard saludara con el nombre de
+ * otra sesión. Lo que pertenece a la cuenta se lee de la cuenta.
  */
 export const SETTING_KEYS = {
-  userName: 'user.name',
   currency: 'app.currency',
 
   /**

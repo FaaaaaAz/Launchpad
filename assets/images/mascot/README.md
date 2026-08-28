@@ -14,7 +14,7 @@ cada módulo se declara en `src/constants/domains.ts` y el de cada deporte en
 
 | Archivo | Dónde se usa |
 | --- | --- |
-| `welcome.png` | Bienvenida tras el onboarding |
+| `welcome.png` | Saludo de PAD al entrar por primera vez · pantalla de Login |
 | `sports.png` | Card de Ejercicio en el dashboard · deporte «Otro» |
 | `study.png` | Card de Académico en el dashboard |
 | `hobby.png` | Card de Hobbies en el dashboard |
@@ -41,6 +41,17 @@ cada módulo se declara en `src/constants/domains.ts` y el de cada deporte en
   superficie sin máscaras ni degradados. Todas las imágenes actuales lo cumplen.
 - **Máximo 512 px de lado.** En pantalla se dibujan entre 62 y 180 px, así que
   incluso a densidad 3x sobra resolución.
+
+  > Esta regla se saltó una vez y se notó: `welcome.png` se subió a 1023 × 1535
+  > (1,3 MB, cinco veces sus hermanas) y la bienvenida tardaba unos tres segundos
+  > en aparecer sobre Expo Go, donde los assets viajan por Wi-Fi desde el
+  > servidor de desarrollo. Reducida a 341 × 512 pesa 259 KB y se ve igual.
+  >
+  > Comprueba las dimensiones antes de dar una ilustración por buena:
+  >
+  > ```bash
+  > node -e "const b=require('fs').readFileSync('assets/images/mascot/welcome.png');console.log(b.readUInt32BE(16)+'x'+b.readUInt32BE(20))"
+  > ```
 
 ### Cómo reducirlas
 

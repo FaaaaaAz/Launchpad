@@ -21,15 +21,18 @@ interface SettingsContextValue {
   localImportDoneFor: string;
   markLocalImportDone: (value: string) => Promise<void>;
 
-  /**
-   * Copia local del nombre del perfil.
+  /*
+   * El nombre del usuario NO está aquí, y es deliberado.
    *
-   * La fuente de verdad es `profiles.display_name` en Supabase; esto es una
-   * caché para que el dashboard salude sin esperar a la red. `AuthProvider`
-   * carga el perfil y `SettingsSync` lo vuelca aquí.
+   * Estuvo: se guardaba una copia local para que el dashboard pudiera saludar
+   * sin esperar a la red. Costó un fallo real —el saludo mostró el nombre de
+   * las pruebas anteriores a que existieran las cuentas, porque la copia
+   * sobrevivía al registro y solo se refrescaba si el perfil cargaba bien—.
+   *
+   * La única fuente del nombre es `profiles.display_name`, vía
+   * `useAuth().profile`. Mientras carga se saluda sin nombre, que es correcto;
+   * enseñar el nombre equivocado no lo es.
    */
-  userName: string;
-  setUserName: (value: string) => Promise<void>;
 
   currency: string;
   setCurrency: (value: string) => Promise<void>;
@@ -87,9 +90,6 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
       localImportDoneFor: values[SETTING_KEYS.localImportDoneFor] ?? '',
       markLocalImportDone: (value: string) => write(SETTING_KEYS.localImportDoneFor, value),
-
-      userName: values[SETTING_KEYS.userName] ?? '',
-      setUserName: (name: string) => write(SETTING_KEYS.userName, name.trim()),
 
       currency: values[SETTING_KEYS.currency] ?? DEFAULT_CURRENCY,
       setCurrency: (currency: string) => write(SETTING_KEYS.currency, currency),

@@ -16,6 +16,22 @@ import { AuthLayout } from './AuthLayout';
 type Phase = 'checking' | 'importing' | 'done' | 'failed' | 'ready';
 
 /**
+ * «3 tareas» · «1 actividad» · «ningún movimiento».
+ *
+ * El género hace falta porque el cero se escribe con artículo, y «ningún
+ * actividad» delata que la frase la montó una máquina.
+ */
+function describe(
+  count: number,
+  singular: string,
+  plural: string,
+  gender: 'f' | 'm' = 'f',
+): string {
+  if (count === 0) return `${gender === 'f' ? 'ninguna' : 'ningún'} ${singular}`;
+  return `${count} ${count === 1 ? singular : plural}`;
+}
+
+/**
  * Sube a la cuenta los datos que ya existían en este teléfono.
  *
  * Launchpad funcionó meses sin cuentas: puede haber tareas, actividades y una
@@ -100,11 +116,11 @@ export function LocalImportGate({ children }: { children: ReactNode }) {
       <AuthLayout
         mascot={mascot.study}
         eyebrow="Un momento"
-        title="Guardando tus datos"
-        subtitle="Estamos subiendo a tu cuenta lo que ya tenías en este teléfono. No cierres la app."
-        padLine="Esto solo pasa una vez. Después, todo viaja contigo."
+        title="Guardando tus cosas"
+        subtitle="Este teléfono ya tenía cosas tuyas apuntadas. Las estoy pasando a tu cuenta para que no se pierdan. No cierres la app."
+        padLine="Esto solo pasa una vez. Después ya me acuerdo yo."
       >
-        <AuthFeedback loading="Subiendo tus datos…" />
+        <AuthFeedback loading="Guardando…" />
       </AuthLayout>
     );
   }
@@ -113,9 +129,9 @@ export function LocalImportGate({ children }: { children: ReactNode }) {
     return (
       <AuthLayout
         mascot={mascot.study}
-        eyebrow="No pudimos terminar"
-        title="Tus datos siguen aquí"
-        subtitle="No se subió nada a la cuenta, pero nada se ha perdido: todo continúa guardado en este teléfono. Puedes reintentarlo ahora o más tarde."
+        eyebrow="No pude terminar"
+        title="Tus cosas siguen aquí"
+        subtitle="No conseguí pasarlas a tu cuenta, pero no se ha perdido nada: siguen guardadas en este teléfono. Puedes volver a intentarlo ahora o más tarde."
         padLine="Tranquilo. No he borrado nada."
       >
         <AuthFeedback error={error} />
@@ -143,21 +159,30 @@ export function LocalImportGate({ children }: { children: ReactNode }) {
     const moved =
       report.tasks + report.activities + report.financeEntries + report.payments;
 
+    /**
+     * El texto explica de DÓNDE salen estas cosas.
+     *
+     * Sin esa frase, alguien que acaba de registrarse lee «guardamos tu
+     * actividad» y no entiende de qué actividad le hablan: él no ha creado
+     * ninguna. Eran las que ya estaban en el teléfono de antes de que la app
+     * tuviera cuentas, y hay que decirlo con esas palabras.
+     */
     return (
       <AuthLayout
         mascot={mascot.dance}
         eyebrow="Listo"
-        title="Todo está en tu cuenta"
+        title="Ya no se me olvida nada"
         subtitle={
-          `Subimos ${report.tasks} ${report.tasks === 1 ? 'tarea' : 'tareas'}, ` +
-          `${report.activities} ${report.activities === 1 ? 'actividad' : 'actividades'} y ` +
-          `${report.financeEntries} ${report.financeEntries === 1 ? 'movimiento' : 'movimientos'} de tu alcancía. ` +
-          'A partir de ahora te siguen aunque cambies de teléfono.'
+          'Este teléfono ya guardaba cosas tuyas de antes de que tuvieras cuenta: ' +
+          `${describe(report.tasks, 'tarea', 'tareas')}, ` +
+          `${describe(report.activities, 'actividad', 'actividades')} y ` +
+          `${describe(report.financeEntries, 'movimiento', 'movimientos', 'm')} de tu alcancía. ` +
+          'Las guardé en tu cuenta para que no se pierdan.'
         }
-        padLine="Ya no dependemos de este teléfono."
+        padLine="Aunque cambies de teléfono, seguiré acordándome de todo."
       >
         <AuthFeedback
-          success={`${moved} ${moved === 1 ? 'elemento guardado' : 'elementos guardados'} en la nube.`}
+          success={`${moved} ${moved === 1 ? 'cosa guardada' : 'cosas guardadas'} en tu cuenta.`}
         />
 
         {/*
@@ -167,11 +192,11 @@ export function LocalImportGate({ children }: { children: ReactNode }) {
         */}
         {report.skipped > 0 ? (
           <AuthFeedback
-            error={`${report.skipped} ${
+            error={
               report.skipped === 1
-                ? 'elemento no se pudo subir y sigue'
-                : 'elementos no se pudieron subir y siguen'
-            } guardado${report.skipped === 1 ? '' : 's'} en este teléfono.`}
+                ? 'Una cosa no la pude pasar y se queda guardada solo en este teléfono.'
+                : `${report.skipped} cosas no las pude pasar y se quedan guardadas solo en este teléfono.`
+            }
           />
         ) : null}
 

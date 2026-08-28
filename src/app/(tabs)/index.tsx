@@ -19,6 +19,7 @@ import {
   selectActivitiesForDay,
   selectPaymentAlerts,
 } from '@/features/activities/activitySelectors';
+import { useAuth } from '@/features/auth/AuthProvider';
 import { DashboardHeader } from '@/features/dashboard/components/DashboardHeader';
 import { FinanceCard } from '@/features/dashboard/components/FinanceCard';
 import { DayProgressCard } from '@/features/dashboard/components/DayProgressCard';
@@ -42,7 +43,8 @@ const MAX_TASKS_PREVIEW = 4;
  * mostrar huecos vacíos desde el primer día.
  */
 export default function DashboardScreen() {
-  const { userName, currency } = useSettings();
+  const { currency } = useSettings();
+  const { profile } = useAuth();
   const { tasks, toggleTask, refresh: refreshTasks } = useTasks();
   const { activities, refresh: refreshActivities } = useActivities();
   const { summary: financeSummary, refresh: refreshFinance } = useFinance();
@@ -76,7 +78,7 @@ export default function DashboardScreen() {
           />
         }
       >
-        <DashboardHeader userName={userName} />
+        <DashboardHeader userName={profile?.displayName ?? ''} />
 
         <View style={styles.sections}>
           <DayProgressCard

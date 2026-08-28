@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -117,7 +116,6 @@ function RootNavigator() {
 function SignedInScope({ children }: { children: ReactNode }) {
   return (
     <LocalImportGate>
-      <ProfileNameSync />
       <ReminderSync />
       <TasksProvider>
         <ActivitiesProvider>
@@ -131,27 +129,6 @@ function SignedInScope({ children }: { children: ReactNode }) {
       </TasksProvider>
     </LocalImportGate>
   );
-}
-
-/**
- * Copia el nombre del perfil a las preferencias locales.
- *
- * El dashboard saluda con `useSettings().userName`, y leerlo de local es lo
- * que hace que el saludo aparezca en el primer fotograma en vez de después de
- * una consulta a la red. La fuente de verdad sigue siendo
- * `profiles.display_name`; esto es solo la caché, y se refresca cada vez que
- * el perfil cambia.
- */
-function ProfileNameSync() {
-  const { profile } = useAuth();
-  const { userName, setUserName } = useSettings();
-
-  useEffect(() => {
-    const name = profile?.displayName?.trim() ?? '';
-    if (name && name !== userName) void setUserName(name);
-  }, [profile?.displayName, userName, setUserName]);
-
-  return null;
 }
 
 /**

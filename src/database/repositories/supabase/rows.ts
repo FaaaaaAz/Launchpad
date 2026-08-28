@@ -28,6 +28,15 @@ const MESSAGE_BY_CODE: Record<string, string> = {
   // Sin permiso. En la practica significa sesion caducada: RLS no encuentra
   // ninguna fila tuya porque el token ya no identifica a nadie.
   '42501': 'Tu sesión expiró. Vuelve a iniciar sesión.',
+  // El token caduco mientras se usaba.
+  PGRST301: 'Tu sesión expiró. Vuelve a iniciar sesión.',
+  /**
+   * «JWT issued at future»: el reloj de PostgREST va por detras del de Auth y
+   * el token le parece venido del futuro. `lib/supabase.ts` ya reintenta este
+   * caso automaticamente; si el mensaje llega hasta aqui es que el desfase
+   * duro mas que los reintentos, y entonces esperar es lo unico que sirve.
+   */
+  PGRST303: 'Hubo un desajuste de hora con el servidor. Espera unos segundos y vuelve a intentarlo.',
   '23505': 'Ya existe un elemento igual.',
   '23503': 'Ese elemento depende de otro que ya no existe.',
   '23514': 'Alguno de los datos no tiene un valor válido.',

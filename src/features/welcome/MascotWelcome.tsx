@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Easing,
@@ -22,6 +22,9 @@ export interface MascotWelcomeProps {
 const ENTER_DELAY = 120;
 const TEXT_DELAY = 380;
 
+/** Tiempo máximo que se espera a que cargue la ilustración de PAD. */
+const MASCOT_LOAD_TIMEOUT = 2500;
+
 /**
  * Bienvenida con la mascota, superpuesta sobre el dashboard.
  *
@@ -41,7 +44,31 @@ export function MascotWelcome({ userName, onDismiss }: MascotWelcomeProps) {
   const textY = useRef(new Animated.Value(24)).current;
   const isLeaving = useRef(false);
 
+  /**
+   * La animación no arranca hasta que la ilustración está lista para dibujarse.
+   *
+   * Sin esto había unos segundos de pantalla prácticamente vacía en los que la
+   * bienvenida ya aceptaba toques: quien tocaba por impaciencia la descartaba
+   * sin haberla visto, y no vuelve a aparecer.
+   *
+   * En Expo Go la espera es más larga porque los assets se descargan del
+   * servidor de desarrollo; ya instalada la app van dentro del paquete.
+   */
+  const [isMascotReady, setIsMascotReady] = useState(false);
+
+  /**
+   * Y si la imagen no llegara —sin red, un asset corrupto—, la bienvenida
+   * sigue adelante igual pasado este tiempo. Una pantalla que se queda
+   * bloqueada para siempre es peor que una sin ilustración.
+   */
   useEffect(() => {
+    const timer = setTimeout(() => setIsMascotReady(true), MASCOT_LOAD_TIMEOUT);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!isMascotReady) return;
+
     Animated.sequence([
       Animated.delay(ENTER_DELAY),
       Animated.parallel([
@@ -75,7 +102,7 @@ export function MascotWelcome({ userName, onDismiss }: MascotWelcomeProps) {
         ]),
       ]),
     ]).start();
-  }, [scrim, mascotX, textOpacity, textY]);
+  }, [isMascotReady, scrim, mascotX, textOpacity, textY]);
 
   const leave = useCallback(() => {
     // Sin este guardia, tocar dos veces rápido lanzaría la salida dos veces y
@@ -112,6 +139,8 @@ export function MascotWelcome({ userName, onDismiss }: MascotWelcomeProps) {
     <Pressable
       style={StyleSheet.absoluteFill}
       onPress={leave}
+      // No se puede descartar lo que todavía no se ve.
+      disabled={!isMascotReady}
       accessibilityRole="button"
       accessibilityLabel="Continuar al inicio"
     >
@@ -124,7 +153,15 @@ export function MascotWelcome({ userName, onDismiss }: MascotWelcomeProps) {
         {/* La imagen tiene fondo transparente, así que se dibuja tal cual.
             No lleva ningún degradado encima: superponerle uno creaba una
             banda oscura visible a media pantalla. */}
-        <Image source={mascot.welcome} style={styles.mascot} resizeMode="contain" />
+        <Image
+          source={mascot.welcome}
+          style={styles.mascot}
+          resizeMode="contain"
+          onLoad={() => setIsMascotReady(true)}
+          // Si la imagen falla, la bienvenida continúa sin ella en vez de
+          // dejar al usuario esperando a algo que no va a llegar.
+          onError={() => setIsMascotReady(true)}
+        />
       </Animated.View>
 
       <Animated.View
@@ -168,9 +205,10 @@ const styles = StyleSheet.create({
     right: -20,
     bottom: 0,
     width: '94%',
-    // La proporción del contenedor iguala la de la imagen, así `contain` la
-    // dibuja sin dejar franjas vacías arriba y abajo.
-    aspectRatio: 1024 / 1536,
+    // La proporción del contenedor iguala la de la imagen (341 × 512), así
+    // `contain` la dibuja sin dejar franjas vacías arriba y abajo. Si cambias
+    // la ilustración, actualiza también estos dos números.
+    aspectRatio: 341 / 512,
   },
   mascot: {
     width: '100%',
